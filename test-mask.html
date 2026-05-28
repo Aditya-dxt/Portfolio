@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { background: #333; margin: 100px; }
+  .container { position: relative; width: 400px; height: 500px; background: #666; }
+  .hacker {
+    position: absolute; inset: 0; background: red;
+    -webkit-mask-image: radial-gradient(circle 150px at 200px 250px, transparent 20%, black 80%);
+  }
+  .profile {
+    position: absolute; inset: 0; background: blue;
+    -webkit-mask-image: radial-gradient(circle 150px at 200px 250px, black 20%, transparent 80%);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="hacker">Hacker (Red)</div>
+    <div class="profile">Profile (Blue)</div>
+  </div>
+</body>
+</html>
