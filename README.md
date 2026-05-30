@@ -1,122 +1,142 @@
-# Aditya Dixit — Portfolio Website 🚀
+# Aditya Dixit — Portfolio Website
 
-A modern, premium, interactive personal portfolio website built with Next.js 15, TypeScript, Tailwind CSS, and Framer Motion.
+A production-ready, single-page portfolio built with **Vite**, **React 18**, and **TypeScript**. The site uses GSAP scroll animations, Lenis smooth scrolling, Three.js particles, and a dark void aesthetic with cyan accents.
 
-## ✨ Features
+## Features
 
-- **15+ Sections**: Hero, About, Stats, Skills, Projects, Achievements, Hackathons, Experience, Education, Coding Profiles, Certifications, Resume, Testimonials, Photography, Contact
-- **Dark/Light Mode**: Toggle between themes with smooth transitions
-- **Animated UI**: Framer Motion scroll-triggered animations, typing effects, floating elements, 3D tilt cards
-- **Glassmorphism Design**: Premium glass-effect cards with backdrop blur
-- **Purple + Cyan Gradient**: Consistent brand identity across all elements
-- **Responsive**: Fully responsive on mobile, tablet, and desktop
-- **SEO Optimized**: Meta tags, Open Graph, structured data
-- **Filterable Projects**: Filter by category (Full Stack, AI/ML, Frontend, etc.)
-- **Animated Counters**: Stats that count up when scrolled into view
-- **Contact Form**: Formspree integration ready
-- **Resume Download**: One-click PDF resume download
+- **Hero** — Three.js particle field, rotating role titles, live clock, social links
+- **About** — Scroll-pinned narrative with portrait and stats
+- **Skills** — Category tabs with animated skill lists
+- **Projects** — Horizontal scroll gallery with filterable project cards
+- **Education** — School and college timelines with images
+- **Timeline** — Experience and leadership milestones
+- **GitHub Stats** — Profile highlights and activity metrics
+- **Testimonials** — Client and peer quotes
+- **Contact** — Email scramble effect, contact form, resume download, social cards
+- **UX polish** — Custom cursor, grain overlay, preloader, scroll progress bar, lazy-loaded sections
+- **Responsive** — Mobile-first layout across all breakpoints
+- **Accessible** — Respects `prefers-reduced-motion`
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 16 (App Router) |
+|-------|------------|
+| Build tool | Vite 6 |
+| Framework | React 18 |
 | Language | TypeScript |
-| Styling | Tailwind CSS v4 |
-| Animations | Framer Motion |
-| Typing Effect | react-type-animation |
+| Styling | Tailwind CSS v3 |
+| Scroll | Lenis + GSAP ScrollTrigger |
+| Animation | GSAP, Framer Motion |
+| 3D | Three.js |
 | Icons | react-icons |
-| Theme | next-themes |
-| Fonts | Inter + JetBrains Mono |
+| Fonts | Space Grotesk + Inter |
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - npm
 
 ### Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/Aditya-dxt/portfolio.git
 cd portfolio
-
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+### Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Vite dev server |
+| `npm run build` | Type-check and build for production |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint on `src/` |
 
 ### Build for Production
 
 ```bash
 npm run build
-npm start
+npm run preview
 ```
 
-## 📁 Project Structure
+The output is written to the `dist/` directory.
+
+## Project Structure
 
 ```
 portfolio/
 ├── public/
-│   ├── images/          # Profile photo, project images, certificates
-│   └── resume/          # Resume PDF
+│   ├── images/              # Portrait, education photos, project screenshots
+│   ├── resume/              # Resume PDF
+│   └── manifest.json
 ├── src/
-│   ├── app/             # Next.js App Router pages & layout
-│   ├── components/
-│   │   ├── layout/      # Navbar, Footer
-│   │   ├── sections/    # All 15 section components
-│   │   ├── ui/          # Reusable UI components
-│   │   └── effects/     # Animation wrappers
-│   ├── data/            # All portfolio content (easily editable)
-│   ├── lib/             # Utility functions
-│   └── types/           # TypeScript type definitions
+│   ├── App.tsx              # Root layout, lazy-loaded sections
+│   ├── main.tsx             # React entry point
+│   ├── index.css            # Tailwind + global styles
+│   ├── context/
+│   │   └── LenisContext.tsx # Smooth scroll + ScrollTrigger proxy
+│   ├── components/          # Section and UI components
+│   ├── data/
+│   │   └── portfolio.ts     # All portfolio content (single source of truth)
+│   ├── hooks/               # Cursor, magnet, scramble effects
+│   └── lib/
+│       └── gsap.ts          # GSAP plugin registration
+├── index.html               # HTML shell + meta tags
+└── vite.config.ts
 ```
 
-## ✏️ Updating Content
+## Updating Content
 
-All portfolio data lives in `src/data/`. Simply edit these files to update your content:
+All portfolio data lives in **`src/data/portfolio.ts`**. Edit this file to update:
 
-- `personal.ts` — Name, bio, taglines, social links
-- `education.ts` — School & college details
-- `skills.ts` — Technical skills by category
-- `projects.ts` — Project details
-- `achievements.ts` — Awards & achievements
-- `hackathons.ts` — Hackathon participation
-- `experience.ts` — Work & leadership experience
-- `certifications.ts` — Professional certifications
-- `codingProfiles.ts` — Coding platform profiles
-- `testimonials.ts` — Testimonials
-- `stats.ts` — Counter numbers
+- Personal info (name, bio, email, location, social links)
+- Navigation links
+- Skills and categories
+- Projects (title, description, tech stack, links, images)
+- Education (school, college, timelines)
+- Timeline / experience entries
+- GitHub stats
+- Testimonials
+- Resume path (`resumePath`)
 
-## 🌐 Deployment
+Place new images under `public/images/` and reference them with paths like `/images/your-file.jpg`.
 
-### Vercel (Recommended)
+## Contact Form
 
-1. Push to GitHub
-2. Connect your repo on [vercel.com](https://vercel.com)
-3. Deploy with zero configuration
+The contact form currently shows a demo success message on submit. To connect a real backend:
+
+1. Create a form at [Formspree](https://formspree.io) (or use your own API)
+2. Update the `handleSubmit` function in `src/components/Contact.tsx` to POST to your endpoint
+
+## Deployment
+
+### Vercel
+
+1. Push the repo to GitHub
+2. Import the project on [vercel.com](https://vercel.com)
+3. Build command: `npm run build`
+4. Output directory: `dist`
 
 ### Netlify
 
-1. Push to GitHub
-2. Connect your repo on [netlify.com](https://netlify.com)
-3. Set build command: `npm run build`
-4. Set publish directory: `.next`
+1. Push the repo to GitHub
+2. Import the project on [netlify.com](https://netlify.com)
+3. Build command: `npm run build`
+4. Publish directory: `dist`
 
-## 📝 Contact Form Setup
+### GitHub Pages / static hosts
 
-1. Create a free account at [formspree.io](https://formspree.io)
-2. Create a new form and get your form ID
-3. Replace `YOUR_FORM_ID` in `src/components/sections/ContactSection.tsx`
+Run `npm run build` and upload the contents of `dist/` to any static file host.
 
-## 📄 License
+## License
 
-MIT License — feel free to use this as a template for your own portfolio!
+MIT License — feel free to use this as a template for your own portfolio.
 
 ---
 
