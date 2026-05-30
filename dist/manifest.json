@@ -1,0 +1,16 @@
+{
+  "name": "Aditya Dixit Portfolio",
+  "short_name": "Aditya Dixit",
+  "description": "Full Stack Developer & Software Engineer Portfolio",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#00D4FF",
+  "icons": [
+    {
+      "src": "/images/aditya-portrait.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

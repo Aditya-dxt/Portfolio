@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto;
+  }
+
+  body {
+    @apply bg-void font-body text-white antialiased overflow-x-hidden;
+    cursor: none;
+  }
+
+  @media (pointer: coarse), (prefers-reduced-motion: reduce) {
+    body {
+      cursor: auto;
+    }
+    [data-cursor-dot],
+    [data-cursor-ring] {
+      display: none !important;
+    }
+  }
+
+  ::selection {
+    background: rgba(0, 212, 255, 0.35);
+    color: #fff;
+  }
+
+  ::-webkit-scrollbar {
+    width: 2px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #050505;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #00d4ff;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .heading-display {
+    @apply font-heading uppercase tracking-widest2 font-semibold;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-accent to-purple bg-clip-text text-transparent;
+  }
+
+  .beam-border {
+    position: relative;
+    background: linear-gradient(#050505, #050505) padding-box,
+      linear-gradient(90deg, #00d4ff, #7b2fbe, #00d4ff) border-box;
+    border: 1px solid transparent;
+    background-size: 200% 200%;
+    animation: borderBeam 3s ease infinite;
+  }
+
+  .lazy-img {
+    @apply transition-opacity duration-500;
+  }
+
+  .lazy-img[data-loaded='false'] {
+    @apply opacity-0 blur-sm scale-[1.02];
+  }
+
+  .lazy-img[data-loaded='true'] {
+    @apply opacity-100 blur-0 scale-100;
+  }
+}
+
+#grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.04;
+}
+
+[data-cursor-dot],
+[data-cursor-ring] {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 99999;
+  will-change: transform;
+}
+
+[data-cursor-dot] {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #00d4ff;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+  mix-blend-mode: screen;
+}
+
+[data-cursor-ring] {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 212, 255, 0.5);
+}
