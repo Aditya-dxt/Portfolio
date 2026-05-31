@@ -1,15 +1,28 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import Lenis from 'lenis';
 import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/gsap';
 
 const LenisContext = createContext<Lenis | null>(null);
+const AppReadyContext = createContext(false);
 
 export function useLenisInstance() {
   return useContext(LenisContext);
 }
 
+export function useAppReady() {
+  return useContext(AppReadyContext);
+}
+
 interface LenisProviderProps {
   enabled: boolean;
+  onReady?: () => void;
   children: ReactNode;
 }
 
@@ -21,12 +34,21 @@ function debounce(fn: () => void, ms: number) {
   };
 }
 
-export function LenisProvider({ enabled, children }: LenisProviderProps) {
+export function LenisProvider({ enabled, onReady, children }: LenisProviderProps) {
   const lenisRef = useRef<Lenis | null>(null);
   const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
+  const [appReady, setAppReady] = useState(isReducedMotion());
+  const onReadyRef = useRef(onReady);
+  onReadyRef.current = onReady;
 
   useEffect(() => {
-    if (!enabled || isReducedMotion()) return;
+    if (!enabled) return;
+
+    if (isReducedMotion()) {
+      setAppReady(true);
+      onReadyRef.current?.();
+      return;
+    }
 
     ScrollTrigger.config({
       limitCallbacks: true,
@@ -69,8 +91,6 @@ export function LenisProvider({ enabled, children }: LenisProviderProps) {
       pinType: 'transform',
     });
 
-    ScrollTrigger.defaults({ markers: false });
-
     const refresh = () => {
       lenis.resize();
       ScrollTrigger.refresh(true);
@@ -78,8 +98,23 @@ export function LenisProvider({ enabled, children }: LenisProviderProps) {
 
     const debouncedRefresh = debounce(refresh, 250);
 
+    const finishBoot = () => {
+      window.scrollTo(0, 0);
+      lenis.scrollTo(0, { immediate: true });
+      refresh();
+      requestAnimationFrame(() => {
+        refresh();
+        setAppReady(true);
+        onReadyRef.current?.();
+        window.dispatchEvent(new CustomEvent('app-ready'));
+      });
+    };
+
+    window.scrollTo(0, 0);
+    lenis.scrollTo(0, { immediate: true });
     refresh();
-    const t1 = window.setTimeout(refresh, 600);
+
+    const t1 = window.setTimeout(finishBoot, 350);
     window.addEventListener('load', debouncedRefresh);
     window.addEventListener('resize', debouncedRefresh);
 
@@ -91,22 +126,26 @@ export function LenisProvider({ enabled, children }: LenisProviderProps) {
       lenis.destroy();
       lenisRef.current = null;
       setLenisInstance(null);
+      setAppReady(false);
       ScrollTrigger.scrollerProxy(document.documentElement, {});
     };
   }, [enabled]);
 
-  return <LenisContext.Provider value={lenisInstance}>{children}</LenisContext.Provider>;
+  return (
+    <LenisContext.Provider value={lenisInstance}>
+      <AppReadyContext.Provider value={appReady}>{children}</AppReadyContext.Provider>
+    </LenisContext.Provider>
+  );
 }
 
-/** One-time refresh after a section mounts — avoids mid-scroll recalc */
-export function useScrollRefresh() {
-  const didRefresh = useRef(false);
+/** Refresh scroll measurements after lazy sections mount */
+export function useScrollRefresh(deps: unknown[] = []) {
   useEffect(() => {
-    if (isReducedMotion() || didRefresh.current) return;
-    didRefresh.current = true;
-    const id = window.setTimeout(() => ScrollTrigger.refresh(true), 100);
+    if (isReducedMotion()) return;
+    const refresh = () => ScrollTrigger.refresh(true);
+    const id = window.setTimeout(refresh, 200);
     return () => window.clearTimeout(id);
-  }, []);
+  }, deps);
 }
 
 export function scrollToTarget(lenis: Lenis | null, target: string, offset = -80) {

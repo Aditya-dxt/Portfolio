@@ -1,7 +1,6 @@
-import { lazy, Suspense, useState, useRef } from 'react';
-import { useGSAP } from '@gsap/react';
-import { gsap, isReducedMotion } from '@/lib/gsap';
-import { LenisProvider, useScrollRefresh } from '@/context/LenisContext';
+import { lazy, Suspense, useState, useEffect } from 'react';
+import { isReducedMotion } from '@/lib/gsap';
+import { LenisProvider } from '@/context/LenisContext';
 import { useCursor } from '@/hooks/useCursor';
 import { Preloader } from '@/components/Preloader';
 import { Navbar } from '@/components/Navbar';
@@ -26,6 +25,9 @@ const GithubStats = lazy(() =>
 const Testimonials = lazy(() =>
   import('@/components/Testimonials').then((m) => ({ default: m.Testimonials })),
 );
+const Photography = lazy(() =>
+  import('@/components/Photography').then((m) => ({ default: m.Photography })),
+);
 const Contact = lazy(() =>
   import('@/components/Contact').then((m) => ({ default: m.Contact })),
 );
@@ -33,30 +35,15 @@ const Footer = lazy(() => import('@/components/Footer').then((m) => ({ default: 
 
 function SectionFallback() {
   return (
-    <div className="flex min-h-[40vh] items-center justify-center">
+    <div className="flex min-h-[50vh] items-center justify-center bg-void">
       <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
     </div>
   );
 }
 
 function AppContent() {
-  const mainRef = useRef<HTMLDivElement>(null);
-  useScrollRefresh();
-
-  useGSAP(
-    () => {
-      if (!mainRef.current || isReducedMotion()) return;
-      gsap.fromTo(
-        mainRef.current,
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 1, ease: 'power3.out' },
-      );
-    },
-    { scope: mainRef },
-  );
-
   return (
-    <div ref={mainRef}>
+    <div className="min-h-screen bg-void">
       <Navbar />
       <main>
         <Suspense fallback={<SectionFallback />}>
@@ -84,6 +71,9 @@ function AppContent() {
           <Testimonials />
         </Suspense>
         <Suspense fallback={<SectionFallback />}>
+          <Photography />
+        </Suspense>
+        <Suspense fallback={<SectionFallback />}>
           <Contact />
         </Suspense>
       </main>
@@ -95,19 +85,50 @@ function AppContent() {
 }
 
 export default function App() {
-  const [loaded, setLoaded] = useState(isReducedMotion());
+  const [booted, setBooted] = useState(isReducedMotion());
+  const [visible, setVisible] = useState(isReducedMotion());
   useCursor();
+
+  useEffect(() => {
+    if (typeof history !== 'undefined') {
+      history.scrollRestoration = 'manual';
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!booted) {
+      document.documentElement.style.overflow = 'hidden';
+      return () => {
+        document.documentElement.style.overflow = '';
+      };
+    }
+    document.documentElement.style.overflow = '';
+  }, [booted]);
+
+  const handlePreloaderComplete = () => {
+    window.scrollTo(0, 0);
+    setBooted(true);
+  };
 
   return (
     <>
       <CustomCursor />
       <GrainOverlay />
-      {!loaded && <Preloader onComplete={() => setLoaded(true)} />}
-      <LenisProvider enabled={loaded}>
-        <div className={loaded ? 'opacity-100' : 'pointer-events-none opacity-0'}>
-          {loaded && <AppContent />}
-        </div>
-      </LenisProvider>
+      {!booted && <Preloader onComplete={handlePreloaderComplete} />}
+      {booted && (
+        <LenisProvider enabled onReady={() => setVisible(true)}>
+          <div
+            className={
+              visible
+                ? 'opacity-100 transition-opacity duration-300'
+                : 'pointer-events-none opacity-0'
+            }
+            aria-hidden={!visible}
+          >
+            <AppContent />
+          </div>
+        </LenisProvider>
+      )}
     </>
   );
 }

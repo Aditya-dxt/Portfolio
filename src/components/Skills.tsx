@@ -61,7 +61,7 @@ export function Skills() {
   const marqueeText = [...portfolio.marqueeSkills, ...portfolio.marqueeSkills].join(' · ');
 
   return (
-    <section id="skills" ref={sectionRef} className="relative overflow-hidden py-32">
+    <section id="skills" ref={sectionRef} className="relative overflow-hidden py-32 pb-20 sm:pb-28">
       <div ref={marqueeRef} className="pointer-events-none absolute inset-0 flex items-center opacity-[0.05]">
         <div data-marquee-track className="whitespace-nowrap font-heading text-6xl uppercase will-change-transform">
           {marqueeText}

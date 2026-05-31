@@ -2,9 +2,11 @@ import { useRef, useState } from 'react';
 import { useGSAP } from '@gsap/react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { gsap, isReducedMotion } from '@/lib/gsap';
-import { useScrollRefresh } from '@/context/LenisContext';
+import { useAppReady } from '@/context/LenisContext';
 import { portfolio } from '@/data/portfolio';
 import { LazyImage } from './LazyImage';
+import { CertificateGallery } from './CertificateGallery';
+import { Hackathons } from './Hackathons';
 
 interface BuildingImageProps {
   src: string;
@@ -181,11 +183,11 @@ export function Education() {
   const collegeLineRef = useRef<HTMLDivElement>(null);
   const { school, college } = portfolio.education;
 
-  useScrollRefresh();
+  const appReady = useAppReady();
 
   useGSAP(
     () => {
-      if (!sectionRef.current || isReducedMotion()) return;
+      if (!sectionRef.current || !appReady || isReducedMotion()) return;
       gsap.from('[data-edu-block]', {
         y: 40,
         opacity: 0,
@@ -198,7 +200,7 @@ export function Education() {
         },
       });
     },
-    { scope: sectionRef },
+    { scope: sectionRef, dependencies: [appReady] },
   );
 
   return (
@@ -214,7 +216,7 @@ export function Education() {
         {/* School: image + name LEFT, timeline RIGHT (all breakpoints) */}
         <div
           data-edu-block
-          className="mb-16 grid grid-cols-2 items-start gap-3 sm:mb-28 sm:gap-8 lg:gap-16"
+          className="mb-20 grid grid-cols-1 items-start gap-8 sm:mb-28 sm:grid-cols-2 sm:gap-8 lg:gap-16"
         >
           <div className="min-w-0">
             <EduHeader
@@ -230,10 +232,19 @@ export function Education() {
           </div>
         </div>
 
+        <CertificateGallery
+          id="school-certificates"
+          title="School Certificates"
+          subtitle="Nine certificates earned through dedication, teamwork, and excellence in school sports competitions."
+          variant="school"
+          schoolItems={portfolio.schoolCertificates}
+          accent="purple"
+        />
+
         {/* College: same layout — PSIT + image LEFT, timeline RIGHT */}
         <div
           data-edu-block
-          className="grid grid-cols-2 items-start gap-3 sm:gap-8 lg:gap-16"
+          className="mb-4 grid grid-cols-1 items-start gap-8 sm:grid-cols-2 sm:gap-8 lg:gap-16"
         >
           <div className="min-w-0">
             <EduHeader
@@ -258,6 +269,19 @@ export function Education() {
               <p className="font-heading text-2xl text-gradient sm:text-4xl">{college.cgpa}</p>
             </div>
           </div>
+        </div>
+
+        <CertificateGallery
+          id="skill-certificates"
+          title="Skills Certificates"
+          subtitle="Continuous learning across cloud, AI, web development, and professional simulations."
+          variant="skill"
+          skillItems={portfolio.skillCertificates}
+          accent="cyan"
+        />
+
+        <div className="mt-20 border-t border-white/5 pt-16 sm:mt-28 sm:pt-20">
+          <Hackathons />
         </div>
       </div>
     </section>

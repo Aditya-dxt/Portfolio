@@ -2,18 +2,18 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import { motion } from 'framer-motion';
 import { gsap, isReducedMotion } from '@/lib/gsap';
-import { useScrollRefresh } from '@/context/LenisContext';
+import { useAppReady } from '@/context/LenisContext';
 import { portfolio } from '@/data/portfolio';
 import { FaQuoteLeft } from 'react-icons/fa';
 
 export function Testimonials() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  useScrollRefresh();
+  const appReady = useAppReady();
 
   useGSAP(
     () => {
-      if (!sectionRef.current || isReducedMotion()) return;
+      if (!sectionRef.current || !appReady || isReducedMotion()) return;
       gsap.from('[data-testimonial-card]', {
         y: 50,
         opacity: 0,
@@ -26,7 +26,7 @@ export function Testimonials() {
         },
       });
     },
-    { scope: sectionRef },
+    { scope: sectionRef, dependencies: [appReady] },
   );
 
   if (!portfolio.testimonials.length) return null;

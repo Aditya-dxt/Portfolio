@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useGSAP } from '@gsap/react';
 import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/gsap';
-import { useLenisInstance, scrollToTarget } from '@/context/LenisContext';
+import { useLenisInstance, useAppReady, scrollToTarget } from '@/context/LenisContext';
 import { portfolio } from '@/data/portfolio';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -10,6 +10,7 @@ export function Navbar() {
   const progressRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLAnchorElement>(null);
   const lenis = useLenisInstance();
+  const appReady = useAppReady();
   const [menuOpen, setMenuOpen] = useState(false);
   const scrolledRef = useRef(false);
 
@@ -21,7 +22,7 @@ export function Navbar() {
 
   useGSAP(
     () => {
-      if (!progressRef.current || isReducedMotion()) return;
+      if (!progressRef.current || isReducedMotion() || !appReady) return;
 
       ScrollTrigger.create({
         start: 0,
@@ -42,7 +43,7 @@ export function Navbar() {
         },
       });
     },
-    { scope: navRef, dependencies: [lenis] },
+    { scope: navRef, dependencies: [lenis, appReady] },
   );
 
   const scatterLogo = () => {

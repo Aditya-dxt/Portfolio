@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
 import { motion } from 'framer-motion';
 import { gsap, isReducedMotion } from '@/lib/gsap';
-import { useScrollRefresh } from '@/context/LenisContext';
+import { useAppReady } from '@/context/LenisContext';
 import { portfolio } from '@/data/portfolio';
 import { FaBriefcase, FaGraduationCap, FaTrophy, FaCode } from 'react-icons/fa';
 
@@ -18,11 +18,11 @@ export function Timeline() {
   const lineRef = useRef<HTMLDivElement>(null);
   const itemsRef = useRef<HTMLUListElement>(null);
 
-  useScrollRefresh();
+  const appReady = useAppReady();
 
   useGSAP(
     () => {
-      if (!sectionRef.current || !lineRef.current || isReducedMotion()) return;
+      if (!sectionRef.current || !lineRef.current || !appReady || isReducedMotion()) return;
 
       gsap.fromTo(
         lineRef.current,
@@ -60,7 +60,7 @@ export function Timeline() {
         );
       });
     },
-    { scope: sectionRef },
+    { scope: sectionRef, dependencies: [appReady] },
   );
 
   return (

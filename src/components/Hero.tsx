@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { gsap, isReducedMotion } from '@/lib/gsap';
 import { portfolio } from '@/data/portfolio';
 import { useMagnet } from '@/hooks/useMagnet';
-import { useLenisInstance, scrollToTarget } from '@/context/LenisContext';
+import { useLenisInstance, useAppReady, scrollToTarget } from '@/context/LenisContext';
 import { ParticleField } from './ParticleField';
 import { SocialLinks } from './SocialLinks';
 
@@ -14,6 +14,7 @@ export function Hero() {
   const line3Ref = useRef<HTMLDivElement>(null);
   const [roleIndex, setRoleIndex] = useState(0);
   const lenis = useLenisInstance();
+  const appReady = useAppReady();
   const workMagnet = useMagnet(80);
   const cvMagnet = useMagnet(80);
   const [time, setTime] = useState('');
@@ -43,22 +44,32 @@ export function Hero() {
 
   useGSAP(
     () => {
-      if (isReducedMotion() || !sectionRef.current) return;
-      [line1Ref.current, line3Ref.current].forEach((wrap, i) => {
-        const inner = wrap?.querySelector('.line-inner');
-        if (!inner) return;
-        gsap.set(inner, { y: 100, opacity: 0, filter: 'blur(8px)' });
-        gsap.to(inner, {
-          y: 0,
-          opacity: 1,
-          filter: 'blur(0px)',
-          duration: 1,
-          delay: 0.5 + i * 0.15,
-          ease: 'power3.out',
+      if (isReducedMotion() || !sectionRef.current || !appReady) return;
+
+      const animateLines = () => {
+        [line1Ref.current, line3Ref.current].forEach((wrap, i) => {
+          const inner = wrap?.querySelector('.line-inner');
+          if (!inner) return;
+          gsap.fromTo(
+            inner,
+            { y: 80, opacity: 0, filter: 'blur(8px)' },
+            {
+              y: 0,
+              opacity: 1,
+              filter: 'blur(0px)',
+              duration: 1,
+              delay: 0.15 + i * 0.12,
+              ease: 'power3.out',
+            },
+          );
         });
-      });
+      };
+
+      animateLines();
+      window.addEventListener('app-ready', animateLines);
+      return () => window.removeEventListener('app-ready', animateLines);
     },
-    { scope: sectionRef },
+    { scope: sectionRef, dependencies: [appReady] },
   );
 
   return (

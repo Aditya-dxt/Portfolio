@@ -1,1 +1,0 @@
-import{j as r}from"./motion-CA3NaCzr.js";import{r as d}from"./gsap-Co-4aQM3.js";function i({src:a,alt:o,className:e=""}){const[t,s]=d.useState(!1);return r.jsx("img",{src:a,alt:o,loading:"lazy",decoding:"async","data-loaded":t,onLoad:()=>s(!0),className:`lazy-img ${e}`})}export{i as L};

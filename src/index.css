@@ -92,6 +92,15 @@
   .lazy-img[data-loaded='true'] {
     @apply opacity-100 blur-0 scale-100;
   }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 #grain {
