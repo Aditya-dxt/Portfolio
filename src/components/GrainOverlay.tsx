@@ -1,6 +1,12 @@
 export function GrainOverlay() {
   return (
-    <svg id="grain" aria-hidden="true" width="100%" height="100%">
+    <svg
+      id="grain"
+      aria-hidden="true"
+      width="100%"
+      height="100%"
+      className="hidden md:block"
+    >
       <filter id="noise">
         <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
       </filter>

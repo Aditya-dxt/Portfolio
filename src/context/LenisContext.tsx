@@ -8,6 +8,7 @@ import {
 } from 'react';
 import Lenis from 'lenis';
 import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/gsap';
+import { isTouchDevice } from '@/lib/device';
 
 const LenisContext = createContext<Lenis | null>(null);
 const AppReadyContext = createContext(false);
@@ -44,10 +45,19 @@ export function LenisProvider({ enabled, onReady, children }: LenisProviderProps
   useEffect(() => {
     if (!enabled) return;
 
-    if (isReducedMotion()) {
-      setAppReady(true);
-      onReadyRef.current?.();
-      return;
+    if (isReducedMotion() || isTouchDevice()) {
+      const finishNative = () => {
+        window.scrollTo(0, 0);
+        ScrollTrigger.refresh(true);
+        requestAnimationFrame(() => {
+          setAppReady(true);
+          onReadyRef.current?.();
+          window.dispatchEvent(new CustomEvent('app-ready'));
+        });
+      };
+      finishNative();
+      const t = window.setTimeout(() => ScrollTrigger.refresh(true), 400);
+      return () => window.clearTimeout(t);
     }
 
     ScrollTrigger.config({

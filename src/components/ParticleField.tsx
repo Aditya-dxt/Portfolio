@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { isReducedMotion } from '@/lib/gsap';
+import { isTouchDevice } from '@/lib/device';
 
 const COUNT = 1500;
 const CONNECT_DIST = 120;
@@ -10,7 +11,7 @@ export function ParticleField() {
   const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!mountRef.current || isReducedMotion()) return;
+    if (!mountRef.current || isReducedMotion() || isTouchDevice()) return;
 
     const mount = mountRef.current;
     const w = mount.clientWidth;
@@ -148,7 +149,7 @@ export function ParticleField() {
     };
   }, []);
 
-  if (isReducedMotion()) {
+  if (isReducedMotion() || isTouchDevice()) {
     return (
       <div
         ref={mountRef}

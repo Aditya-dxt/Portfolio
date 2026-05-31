@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useGSAP } from '@gsap/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/gsap';
+import { isTouchDevice } from '@/lib/device';
 import { portfolio } from '@/data/portfolio';
 
 export function Skills() {
@@ -14,7 +15,7 @@ export function Skills() {
 
   useGSAP(
     () => {
-      if (!marqueeRef.current || isReducedMotion()) return;
+      if (!marqueeRef.current || isReducedMotion() || isTouchDevice()) return;
       const track = marqueeRef.current.querySelector('[data-marquee-track]');
       if (!track) return;
       gsap.to(track, {

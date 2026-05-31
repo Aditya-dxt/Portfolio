@@ -1,13 +1,45 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useGSAP } from '@gsap/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Tilt } from 'react-tilt';
 import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/gsap';
 import { useAppReady } from '@/context/LenisContext';
+import { isTouchDevice } from '@/lib/device';
+import { useExpandableList } from '@/hooks/useExpandableList';
 import { portfolio } from '@/data/portfolio';
 import { LazyImage } from './LazyImage';
+import { ExploreMoreCard } from './ExploreMoreCard';
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 
-function ProjectCard({ project }: { project: (typeof portfolio.projects)[number] }) {
+const DESKTOP_INITIAL = 4;
+const PANEL_COUNT = 5;
+
+function ProjectCard({
+  project,
+  enableTilt,
+}: {
+  project: (typeof portfolio.projects)[number];
+  enableTilt: boolean;
+}) {
+  const imageBlock = (
+    <div className="group relative overflow-hidden rounded-2xl glass-panel">
+      <LazyImage
+        src={project.image}
+        alt={project.name}
+        className="aspect-video w-full object-cover"
+      />
+      <a
+        href={project.live}
+        data-hover
+        className="absolute inset-0 flex items-center justify-center bg-accent/0 opacity-0 transition-all group-hover:bg-accent/20 group-hover:opacity-100"
+      >
+        <span className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-void">
+          View Project
+        </span>
+      </a>
+    </div>
+  );
+
   return (
     <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-8 sm:gap-12 lg:grid-cols-2">
       <span
@@ -18,27 +50,16 @@ function ProjectCard({ project }: { project: (typeof portfolio.projects)[number]
       </span>
 
       <div className="relative">
-        <Tilt
-          className="overflow-hidden rounded-2xl glass-panel"
-          options={{ max: 8, scale: 1.01, speed: 400 }}
-        >
-          <div className="group relative">
-            <LazyImage
-              src={project.image}
-              alt={project.name}
-              className="aspect-video w-full object-cover"
-            />
-            <a
-              href={project.live}
-              data-hover
-              className="absolute inset-0 flex items-center justify-center bg-accent/0 opacity-0 transition-all group-hover:bg-accent/20 group-hover:opacity-100"
-            >
-              <span className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-void">
-                View Project
-              </span>
-            </a>
-          </div>
-        </Tilt>
+        {enableTilt ? (
+          <Tilt
+            className="overflow-hidden rounded-2xl"
+            options={{ max: 8, scale: 1.01, speed: 400 }}
+          >
+            {imageBlock}
+          </Tilt>
+        ) : (
+          imageBlock
+        )}
       </div>
 
       <div>
@@ -90,80 +111,106 @@ export function Projects() {
   const pinRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const dotsRef = useRef<HTMLDivElement>(null);
+  const scrollTweenRef = useRef<gsap.core.Tween | null>(null);
   const activeIndexRef = useRef(0);
   const projects = portfolio.projects;
-  const total = projects.length;
+  const fifthProject = projects[4];
   const appReady = useAppReady();
+  const touch = isTouchDevice();
+
+  const mobileList = useExpandableList(projects, DESKTOP_INITIAL);
+  const desktopList = useExpandableList(projects, DESKTOP_INITIAL);
+
+  const updateDots = (idx: number) => {
+    if (idx === activeIndexRef.current) return;
+    activeIndexRef.current = idx;
+    dotsRef.current?.querySelectorAll('[data-dot]').forEach((dot, i) => {
+      gsap.set(dot, {
+        width: i === idx ? 32 : 8,
+        backgroundColor: i === idx ? '#00D4FF' : '#4B5563',
+      });
+    });
+  };
 
   useGSAP(
     () => {
       const section = sectionRef.current;
       const pin = pinRef.current;
       const track = trackRef.current;
-      if (!section || !pin || !track || !appReady || isReducedMotion()) return;
+      if (!section || !appReady || isReducedMotion()) return;
 
-      ScrollTrigger.matchMedia({
-        '(min-width: 768px)': () => {
-          const getDistance = () => Math.max(0, track.scrollWidth - window.innerWidth);
+      if (!touch && pin && track) {
+        const getDistance = () => Math.max(0, track.scrollWidth - window.innerWidth);
 
-          gsap.set(track, { x: 0 });
+        gsap.set(track, { x: 0 });
 
-          const tween = gsap.to(track, {
-            x: () => -getDistance(),
-            ease: 'none',
-            force3D: true,
-            scrollTrigger: {
-              trigger: pin,
-              start: 'top top',
-              end: () => `+=${getDistance() || window.innerWidth}`,
-              pin: true,
-              pinSpacing: true,
-              scrub: 0.25,
-              anticipatePin: 1,
-              invalidateOnRefresh: true,
-              onUpdate: (self) => {
-                const idx = Math.min(Math.floor(self.progress * total), total - 1);
-                if (idx === activeIndexRef.current) return;
-                activeIndexRef.current = idx;
-                dotsRef.current?.querySelectorAll('[data-dot]').forEach((dot, i) => {
-                  gsap.set(dot, {
-                    width: i === idx ? 32 : 8,
-                    backgroundColor: i === idx ? '#00D4FF' : '#4B5563',
-                  });
-                });
-              },
+        scrollTweenRef.current = gsap.to(track, {
+          x: () => -getDistance(),
+          ease: 'none',
+          force3D: true,
+          scrollTrigger: {
+            trigger: pin,
+            start: 'top top',
+            end: () => `+=${getDistance() || window.innerWidth}`,
+            pin: true,
+            pinSpacing: true,
+            scrub: 0.25,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            onUpdate: (self) => {
+              const idx = Math.min(
+                Math.floor(self.progress * PANEL_COUNT),
+                PANEL_COUNT - 1,
+              );
+              updateDots(idx);
             },
-          });
+          },
+        });
 
-          const refresh = () => ScrollTrigger.refresh(true);
-          const t1 = window.setTimeout(refresh, 200);
-          track.querySelectorAll('img').forEach((img) => {
-            if (!img.complete) img.addEventListener('load', refresh, { once: true });
-          });
+        const refresh = () => ScrollTrigger.refresh(true);
+        const t1 = window.setTimeout(refresh, 200);
+        track.querySelectorAll('img').forEach((img) => {
+          if (!img.complete) img.addEventListener('load', refresh, { once: true });
+        });
 
-          return () => {
-            window.clearTimeout(t1);
-            tween.scrollTrigger?.kill();
-            tween.kill();
-            gsap.set(track, { clearProps: 'transform' });
-          };
-        },
-      });
+        return () => {
+          window.clearTimeout(t1);
+          scrollTweenRef.current?.scrollTrigger?.kill();
+          scrollTweenRef.current?.kill();
+          scrollTweenRef.current = null;
+          gsap.set(track, { clearProps: 'transform' });
+        };
+      }
 
-      gsap.from('[data-project-mobile]', {
-        y: 40,
+      gsap.from('[data-project-item]', {
+        y: touch ? 20 : 40,
         opacity: 0,
-        stagger: 0.12,
-        duration: 0.8,
+        stagger: touch ? 0.06 : 0.12,
+        duration: touch ? 0.5 : 0.8,
         ease: 'power3.out',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top 80%',
-        },
+        scrollTrigger: { trigger: section, start: 'top 85%' },
       });
     },
-    { scope: sectionRef, dependencies: [total, appReady] },
+    { scope: sectionRef, dependencies: [projects.length, appReady, touch] },
   );
+
+  useEffect(() => {
+    if (!desktopList.expanded || touch || !appReady) return;
+
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh(true);
+      const lastPanel = trackRef.current?.querySelector('[data-project-fifth]');
+      if (lastPanel) {
+        gsap.fromTo(
+          lastPanel,
+          { opacity: 0, scale: 0.96 },
+          { opacity: 1, scale: 1, duration: 0.55, ease: 'power3.out' },
+        );
+      }
+    });
+  }, [desktopList.expanded, touch, appReady]);
+
+  const showDesktopExplore = desktopList.hasMore && !desktopList.expanded && fifthProject;
 
   return (
     <section id="work" ref={sectionRef} className="relative bg-void py-16 sm:py-20 md:py-0">
@@ -173,35 +220,91 @@ export function Projects() {
         </h2>
       </div>
 
-      {/* Mobile / tablet: vertical stack */}
-      <div className="space-y-16 px-4 sm:space-y-20 sm:px-6 md:hidden">
-        {projects.map((project) => (
-          <article key={project.id} data-project-mobile className="pt-4">
-            <ProjectCard project={project} />
-          </article>
-        ))}
+      {/* Mobile */}
+      <div className="space-y-12 px-4 sm:space-y-16 sm:px-6 md:hidden">
+        {projects.map((project, index) => {
+          if (index >= DESKTOP_INITIAL && !mobileList.expanded) return null;
+          const isReveal = index >= DESKTOP_INITIAL && mobileList.expanded;
+          return (
+            <motion.article
+              key={project.id}
+              data-project-item
+              initial={isReveal ? { opacity: 0, y: 28 } : false}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              className="pt-2"
+            >
+              <ProjectCard project={project} enableTilt={false} />
+            </motion.article>
+          );
+        })}
+        {mobileList.hasMore && !mobileList.expanded && (
+          <div data-project-item>
+            <ExploreMoreCard
+              hiddenCount={mobileList.hiddenCount}
+              onClick={mobileList.expand}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Desktop: horizontal scroll */}
+      {/* Desktop: fixed 5 panels — 5th swaps explore → project without rebuilding scroll */}
       <div ref={pinRef} className="relative hidden h-screen w-full overflow-hidden md:block">
         <div
           ref={trackRef}
           className="flex h-full flex-nowrap will-change-transform"
-          style={{ width: `${total * 100}vw` }}
+          style={{ width: `${PANEL_COUNT * 100}vw` }}
         >
-          {projects.map((project) => (
+          {projects.slice(0, DESKTOP_INITIAL).map((project) => (
             <article
               key={project.id}
               className="flex h-full shrink-0 items-center px-6 py-24 md:px-16"
               style={{ width: '100vw' }}
             >
-              <ProjectCard project={project} />
+              <ProjectCard project={project} enableTilt />
             </article>
           ))}
+
+          <article
+            className="flex h-full shrink-0 items-center px-6 py-24 md:px-16"
+            style={{ width: '100vw' }}
+          >
+            <div className="relative mx-auto w-full max-w-6xl">
+              <AnimatePresence mode="wait">
+                {showDesktopExplore ? (
+                  <motion.div
+                    key="explore"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.35 }}
+                    className="mx-auto max-w-md px-4"
+                  >
+                    <ExploreMoreCard
+                      hiddenCount={desktopList.hiddenCount}
+                      onClick={desktopList.expand}
+                    />
+                  </motion.div>
+                ) : (
+                  fifthProject && (
+                    <motion.div
+                      key="project-fifth"
+                      data-project-fifth
+                      initial={{ opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <ProjectCard project={fifthProject} enableTilt />
+                    </motion.div>
+                  )
+                )}
+              </AnimatePresence>
+            </div>
+          </article>
         </div>
 
         <div ref={dotsRef} className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-          {projects.map((_, i) => (
+          {Array.from({ length: PANEL_COUNT }).map((_, i) => (
             <span
               key={i}
               data-dot
