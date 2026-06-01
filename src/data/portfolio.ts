@@ -443,13 +443,13 @@ export const portfolio = {
     },
     {
       id: '04',
-      name: 'Waterfall Login UI',
-      stack: ['React', 'CSS3', 'Animations'],
+      name: 'Brew & Co. — Artisan Coffee Roasters',
+      stack: ['React 18', 'Vite' , 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'Lucide React'],
       description:
-        'Stunning animated login UI with cascading waterfall effects, glassmorphism, and micro-interactions.',
+        'A highly interactive, premium artisan coffee shop web application. Brew & Co. features a gorgeous dark aesthetic, smooth scroll-driven animations, and a custom 3D glassmorphism engine to showcase their signature roasts.',
       image: '/images/projects/project4.png',
-      live: 'https://waterfall-login-ui.vercel.app/',
-      github: 'https://github.com/Aditya-dxt/waterfall-login-UI',
+      live: 'https://brew-and-co-opal.vercel.app/',
+      github: 'https://github.com/Aditya-dxt/brew-and-co-coffee-roasters',
     },
     {
       id: '05',
@@ -460,6 +460,16 @@ export const portfolio = {
       image: '/images/projects/project5.png',
       live: 'https://github.com/Aditya-dxt/smart-packet-analyzer',
       github: 'https://github.com/Aditya-dxt/smart-packet-analyzer',
+    },
+    {
+      id: '06',
+      name: 'Waterfall Login UI',
+      stack: ['React', 'CSS3', 'Animations'],
+      description:
+        'Stunning animated login UI with cascading waterfall effects, glassmorphism, and micro-interactions.',
+      image: '/images/projects/project6.png',
+      live: 'https://waterfall-login-ui.vercel.app/',
+      github: 'https://github.com/Aditya-dxt/waterfall-login-UI',
     },
   ],
   skillCategories: [
