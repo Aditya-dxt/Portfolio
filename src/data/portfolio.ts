@@ -106,7 +106,7 @@ export const portfolio = {
         {
           title: 'Class 12 (ISC) & Sports Captain',
           period: '2023 – 2024',
-          grade: '78.4%',
+          grade: '83.4%',
           description: 'Graduated with Physics, Chemistry, and Mathematics.',
           badge: 'Sports Captain 🏅',
         },
@@ -561,7 +561,7 @@ export const portfolio = {
       title: 'ISC Class XII — PCM',
       org: 'St. Thomas School',
       period: '2023 – 2024',
-      description: '78.4% · Physics, Chemistry, Mathematics',
+      description: '83.4% · Physics, Chemistry, Mathematics',
       tags: ['ISC', 'PCM'],
     },
     {
