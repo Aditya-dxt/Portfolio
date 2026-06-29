@@ -54,3 +54,116 @@ built with React 18 · TypeScript · Three.js · GSAP · Tailwind CSS
 ---
 
 ## 📂 Project Structure
+portfolio/
+
+├── public/
+
+│   ├── images/              # Photos, project screenshots
+
+│   └── resume/              # Resume PDF
+
+├── src/
+
+│   ├── components/          # All section & UI components
+
+│   ├── data/
+
+│   │   └── portfolio.ts     # ← Edit ALL your content here
+
+│   ├── hooks/               # Cursor, magnet, scramble effects
+
+│   ├── context/
+
+│   │   └── LenisContext.tsx # Smooth scroll setup
+
+│   └── App.tsx              # Root layout with lazy-loaded sections
+
+└── vite.config.ts
+
+---
+
+## 🚀 Getting Started
+
+```bash
+# Clone
+git clone https://github.com/Aditya-dxt/Portfolio.git
+cd Portfolio
+
+# Install
+npm install
+
+# Develop
+npm run dev        # → http://localhost:5173
+
+# Build
+npm run build
+npm run preview
+```
+
+---
+
+## ✏️ Customizing Content
+
+**All portfolio data lives in one file: `src/data/portfolio.ts`**
+
+Edit it to update your name, bio, skills, projects, education, timeline, social links, and resume path — no hunting through components needed.
+
+| Section | What to edit |
+|---|---|
+| Hero / About | `name`, `bio`, `roles`, `socialLinks` |
+| Skills | `skills` array with categories |
+| Projects | `projects` array with title, stack, links, images |
+| Education | `education` with school and college entries |
+| Experience | `timeline` milestones |
+| Contact | `email`, `resumePath` |
+
+---
+
+## 🌐 Sections
+
+| # | Section | Description |
+|---|---|---|
+| 1 | Hero | Three.js particles, rotating roles, live clock |
+| 2 | About | Scroll-pinned narrative with stats |
+| 3 | Skills | Category tabs with animated lists |
+| 4 | Projects | Horizontal scroll gallery with filters |
+| 5 | Education | School & college timelines |
+| 6 | Timeline | Experience & leadership milestones |
+| 7 | GitHub Stats | Profile metrics & activity |
+| 8 | Testimonials | Client and peer quotes |
+| 9 | Contact | Form, resume download, social cards |
+
+---
+
+## 📬 Connecting the Contact Form
+
+The form currently shows a demo success state. To make it live:
+
+1. Create a free endpoint at [Formspree](https://formspree.io)
+2. Update `handleSubmit` in `src/components/Contact.tsx` to POST to your endpoint
+
+---
+
+## 📦 Deployment
+
+Works on any static host. Recommended: **Vercel** (zero config).
+
+```bash
+npm run build   # Output goes to /dist
+```
+
+Just connect your GitHub repo on [vercel.com](https://vercel.com) — it auto-detects Vite.
+
+---
+
+## 📜 License
+
+MIT — feel free to use this as a template for your own portfolio. A credit or star ⭐ is appreciated!
+
+---
+
+<div align="center">
+  Built with ❤️ by <a href="https://github.com/Aditya-dxt">Aditya Dixit</a>
+  <br/>
+  <a href="https://aditya-dixit.vercel.app">aditya-dixit.vercel.app</a>
+</div>
