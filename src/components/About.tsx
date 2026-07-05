@@ -7,7 +7,6 @@ import { LazyImage } from './LazyImage';
 
 export function About() {
   const sectionRef = useRef<HTMLElement>(null);
-  const blobRef = useRef<HTMLDivElement>(null);
   const phase1Ref = useRef<HTMLDivElement>(null);
   const phase2Ref = useRef<HTMLDivElement>(null);
   const phase3Ref = useRef<HTMLDivElement>(null);
@@ -104,18 +103,7 @@ export function About() {
     { scope: sectionRef, dependencies: [appReady] },
   );
 
-  useGSAP(
-    () => {
-      if (!blobRef.current || !appReady || isReducedMotion()) return;
-      gsap.to(blobRef.current, {
-        rotation: 360,
-        duration: 24,
-        repeat: -1,
-        ease: 'none',
-      });
-    },
-    { scope: blobRef, dependencies: [appReady] },
-  );
+
 
   return (
     <section id="about" ref={sectionRef} className="relative bg-void py-16 sm:py-24 lg:min-h-screen lg:py-0">
@@ -133,18 +121,13 @@ export function About() {
         {/* Mobile / tablet: stacked — always visible, no scroll pin */}
         <div className="flex flex-col items-center gap-10 lg:hidden">
           <div data-about-reveal className="relative w-full max-w-sm">
-            <div
-              ref={blobRef}
-              className="absolute -inset-4 bg-accent/20 will-change-transform"
-              aria-hidden
-            />
-            <div className="relative aspect-[3/4] overflow-hidden rounded-2xl border-2 border-accent/30 bg-void">
+            <div className="profile-frame aspect-[3/4] overflow-hidden bg-void">
               <LazyImage
                 src={portfolio.profileImage}
                 alt={portfolio.name}
                 sharp
                 eager
-                className="h-full w-full scale-[0.92] object-cover object-[center_18%] contrast-[1.05] saturate-[1.05]"
+                className="relative z-10 h-full w-full object-cover object-[center_18%] contrast-[1.05] saturate-[1.05]"
               />
             </div>
           </div>
@@ -183,18 +166,13 @@ export function About() {
         {/* Desktop: pinned phases */}
         <div className="hidden min-h-screen items-center gap-16 lg:flex">
           <div className="relative w-[40%] shrink-0">
-            <div
-              className="absolute -inset-4 bg-accent/20 will-change-transform"
-              aria-hidden
-            />
-            <div className="relative aspect-[3/4] overflow-hidden rounded-2xl border-2 border-accent/30 bg-void">
-              <div className="pointer-events-none absolute inset-0 animate-[spin_12s_linear_infinite] rounded-2xl border-2 border-dashed border-accent/40" />
+            <div className="profile-frame aspect-[3/4] overflow-hidden bg-void">
               <LazyImage
                 src={portfolio.profileImage}
                 alt={portfolio.name}
                 sharp
                 eager
-                className="relative z-10 h-full w-full scale-[0.92] object-cover object-[center_18%] contrast-[1.05] saturate-[1.05]"
+                className="relative z-10 h-full w-full object-cover object-[center_18%] contrast-[1.05] saturate-[1.05]"
               />
             </div>
           </div>

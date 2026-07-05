@@ -1,3 +1,9 @@
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -79,6 +85,55 @@
     border: 1px solid transparent;
     background-size: 200% 200%;
     animation: borderBeam 3s ease infinite;
+  }
+
+  /* ─── Profile Frame: Animated Gradient Border ─── */
+  .profile-frame {
+    --border-width: 2px;
+    position: relative;
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.12),
+                0 0 60px rgba(0, 212, 255, 0.06);
+    transition: box-shadow 0.4s ease, transform 0.35s ease;
+  }
+
+  .profile-frame:hover {
+    box-shadow: 0 0 28px rgba(0, 212, 255, 0.22),
+                0 0 80px rgba(0, 212, 255, 0.1);
+    transform: scale(1.03);
+  }
+
+  /* Rotating gradient border via pseudo-element */
+  .profile-frame::before {
+    content: '';
+    position: absolute;
+    inset: calc(var(--border-width) * -1);
+    border-radius: inherit;
+    padding: var(--border-width);
+    background: conic-gradient(
+      from var(--gradient-angle, 0deg),
+      transparent 0%,
+      #00d4ff 12%,
+      rgba(0, 212, 255, 0.4) 25%,
+      transparent 40%,
+      transparent 60%,
+      rgba(0, 212, 255, 0.3) 75%,
+      #00d4ff 88%,
+      transparent 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: profileBorderSpin 4s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  @keyframes profileBorderSpin {
+    to {
+      --gradient-angle: 360deg;
+    }
   }
 
   .lazy-img {
