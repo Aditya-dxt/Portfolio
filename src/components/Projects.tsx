@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { useGSAP } from '@gsap/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Tilt } from 'react-tilt';
 import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/gsap';
 import { useAppReady } from '@/context/LenisContext';
