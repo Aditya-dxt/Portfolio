@@ -12,7 +12,6 @@ import { ExploreMoreCard } from './ExploreMoreCard';
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 
 const DESKTOP_INITIAL = 4;
-const PANEL_COUNT = 5;
 
 function ProjectCard({
   project,
@@ -114,12 +113,16 @@ export function Projects() {
   const scrollTweenRef = useRef<gsap.core.Tween | null>(null);
   const activeIndexRef = useRef(0);
   const projects = portfolio.projects;
-  const fifthProject = projects[4];
   const appReady = useAppReady();
   const touch = isTouchDevice();
 
   const mobileList = useExpandableList(projects, DESKTOP_INITIAL);
   const desktopList = useExpandableList(projects, DESKTOP_INITIAL);
+
+  // When expanded, show all projects; otherwise show initial + 1 explore card
+  const desktopPanelCount = desktopList.expanded
+    ? projects.length
+    : DESKTOP_INITIAL + 1;
 
   const updateDots = (idx: number) => {
     if (idx === activeIndexRef.current) return;
@@ -159,8 +162,8 @@ export function Projects() {
             invalidateOnRefresh: true,
             onUpdate: (self) => {
               const idx = Math.min(
-                Math.floor(self.progress * PANEL_COUNT),
-                PANEL_COUNT - 1,
+                Math.floor(self.progress * desktopPanelCount),
+                desktopPanelCount - 1,
               );
               updateDots(idx);
             },
@@ -191,26 +194,29 @@ export function Projects() {
         scrollTrigger: { trigger: section, start: 'top 85%' },
       });
     },
-    { scope: sectionRef, dependencies: [projects.length, appReady, touch] },
+    { scope: sectionRef, dependencies: [projects.length, appReady, touch, desktopPanelCount] },
   );
 
+  // Refresh ScrollTrigger when the track expands after clicking "Explore More"
   useEffect(() => {
     if (!desktopList.expanded || touch || !appReady) return;
 
     requestAnimationFrame(() => {
       ScrollTrigger.refresh(true);
-      const lastPanel = trackRef.current?.querySelector('[data-project-fifth]');
-      if (lastPanel) {
+
+      // Animate the newly revealed project panels
+      const revealedPanels = trackRef.current?.querySelectorAll('[data-project-extra]');
+      if (revealedPanels?.length) {
         gsap.fromTo(
-          lastPanel,
+          revealedPanels,
           { opacity: 0, scale: 0.96 },
-          { opacity: 1, scale: 1, duration: 0.55, ease: 'power3.out' },
+          { opacity: 1, scale: 1, duration: 0.55, ease: 'power3.out', stagger: 0.1 },
         );
       }
     });
   }, [desktopList.expanded, touch, appReady]);
 
-  const showDesktopExplore = desktopList.hasMore && !desktopList.expanded && fifthProject;
+  const hiddenProjects = projects.slice(DESKTOP_INITIAL);
 
   return (
     <section id="work" ref={sectionRef} className="relative bg-void py-16 sm:py-20 md:py-0">
@@ -248,13 +254,14 @@ export function Projects() {
         )}
       </div>
 
-      {/* Desktop: fixed 5 panels — 5th swaps explore → project without rebuilding scroll */}
+      {/* Desktop: horizontal scroll panels */}
       <div ref={pinRef} className="relative hidden h-screen w-full overflow-hidden md:block">
         <div
           ref={trackRef}
           className="flex h-full flex-nowrap will-change-transform"
-          style={{ width: `${PANEL_COUNT * 100}vw` }}
+          style={{ width: `${desktopPanelCount * 100}vw` }}
         >
+          {/* First N (DESKTOP_INITIAL) projects — always visible */}
           {projects.slice(0, DESKTOP_INITIAL).map((project) => (
             <article
               key={project.id}
@@ -265,46 +272,39 @@ export function Projects() {
             </article>
           ))}
 
-          <article
-            className="flex h-full shrink-0 items-center px-6 py-24 md:px-16"
-            style={{ width: '100vw' }}
-          >
-            <div className="relative mx-auto w-full max-w-6xl">
-              <AnimatePresence mode="wait">
-                {showDesktopExplore ? (
-                  <motion.div
-                    key="explore"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.35 }}
-                    className="mx-auto max-w-md px-4"
-                  >
-                    <ExploreMoreCard
-                      hiddenCount={desktopList.hiddenCount}
-                      onClick={desktopList.expand}
-                    />
-                  </motion.div>
-                ) : (
-                  fifthProject && (
-                    <motion.div
-                      key="project-fifth"
-                      data-project-fifth
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      <ProjectCard project={fifthProject} enableTilt />
-                    </motion.div>
-                  )
-                )}
-              </AnimatePresence>
-            </div>
-          </article>
+          {/* Last panel: either ExploreMoreCard or the remaining projects */}
+          {desktopList.expanded ? (
+            // Show ALL remaining projects as separate panels
+            hiddenProjects.map((project) => (
+              <article
+                key={project.id}
+                data-project-extra
+                className="flex h-full shrink-0 items-center px-6 py-24 md:px-16"
+                style={{ width: '100vw' }}
+              >
+                <ProjectCard project={project} enableTilt />
+              </article>
+            ))
+          ) : (
+            // Show the ExploreMoreCard as a single panel
+            <article
+              className="flex h-full shrink-0 items-center px-6 py-24 md:px-16"
+              style={{ width: '100vw' }}
+            >
+              <div className="relative mx-auto w-full max-w-6xl">
+                <div className="mx-auto max-w-md px-4">
+                  <ExploreMoreCard
+                    hiddenCount={desktopList.hiddenCount}
+                    onClick={desktopList.expand}
+                  />
+                </div>
+              </div>
+            </article>
+          )}
         </div>
 
         <div ref={dotsRef} className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-          {Array.from({ length: PANEL_COUNT }).map((_, i) => (
+          {Array.from({ length: desktopPanelCount }).map((_, i) => (
             <span
               key={i}
               data-dot
