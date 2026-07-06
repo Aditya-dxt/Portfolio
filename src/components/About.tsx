@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
-import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/gsap';
+import { gsap, isReducedMotion } from '@/lib/gsap';
 import { useAppReady } from '@/context/LenisContext';
 import { portfolio } from '@/data/portfolio';
 import { LazyImage } from './LazyImage';
