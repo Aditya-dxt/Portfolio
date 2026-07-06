@@ -1,6 +1,6 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Tilt } from 'react-tilt';
 import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/gsap';
 import { useAppReady } from '@/context/LenisContext';
@@ -9,9 +9,10 @@ import { useExpandableList } from '@/hooks/useExpandableList';
 import { portfolio } from '@/data/portfolio';
 import { LazyImage } from './LazyImage';
 import { ExploreMoreCard } from './ExploreMoreCard';
-import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
 
 const DESKTOP_INITIAL = 4;
+const PANEL_COUNT = 5;
 
 function ProjectCard({
   project,
@@ -105,6 +106,145 @@ function ProjectCard({
   );
 }
 
+/* ─── Grid card for the overlay view ─── */
+function ProjectGridCard({ project }: { project: (typeof portfolio.projects)[number] }) {
+  return (
+    <div className="group glass-panel overflow-hidden rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(0,212,255,0.12)]">
+      <div className="relative overflow-hidden">
+        <LazyImage
+          src={project.image}
+          alt={project.name}
+          className="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-void/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      </div>
+      <div className="p-5">
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {project.stack.slice(0, 3).map((tech) => (
+            <span
+              key={tech}
+              className="rounded-full bg-accent/10 px-2.5 py-0.5 font-body text-[10px] text-accent"
+            >
+              {tech}
+            </span>
+          ))}
+          {project.stack.length > 3 && (
+            <span className="rounded-full bg-white/5 px-2.5 py-0.5 font-body text-[10px] text-gray-500">
+              +{project.stack.length - 3}
+            </span>
+          )}
+        </div>
+        <h3 className="font-heading text-lg font-semibold text-white">{project.name}</h3>
+        <p className="mt-2 line-clamp-2 font-body text-xs leading-relaxed text-gray-400">
+          {project.description}
+        </p>
+        <div className="mt-4 flex gap-3">
+          <a
+            href={project.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-hover
+            className="flex items-center gap-1.5 text-xs text-gray-400 transition-colors hover:text-accent"
+          >
+            <FaGithub size={14} />
+            Source
+          </a>
+          <a
+            href={project.live}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-hover
+            className="flex items-center gap-1.5 text-xs text-gray-400 transition-colors hover:text-accent"
+          >
+            <FaExternalLinkAlt size={12} />
+            Live
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Full-screen projects overlay ─── */
+function ProjectsOverlay({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const projects = portfolio.projects;
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
+  // Lock body scroll when overlay is open
+  useEffect(() => {
+    if (isOpen) {
+      document.documentElement.style.overflow = 'hidden';
+    }
+    return () => {
+      document.documentElement.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className="fixed inset-0 z-[9999] flex flex-col overflow-y-auto bg-void/95 backdrop-blur-md"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.35 }}
+        >
+          {/* Header */}
+          <div className="sticky top-0 z-10 flex items-center justify-between bg-void/80 px-6 py-5 backdrop-blur-sm sm:px-10">
+            <h2 className="heading-display text-xl text-white sm:text-2xl">
+              All <span className="text-gradient">Projects</span>
+            </h2>
+            <button
+              type="button"
+              onClick={onClose}
+              data-hover
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400 transition-all hover:border-accent/40 hover:text-accent"
+            >
+              <FaTimes size={16} />
+            </button>
+          </div>
+
+          {/* Grid */}
+          <div className="mx-auto w-full max-w-7xl px-6 pb-16 pt-4 sm:px-10">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {projects.map((project, i) => (
+                <motion.div
+                  key={project.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: i * 0.08,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
+                  <ProjectGridCard project={project} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 export function Projects() {
   const sectionRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
@@ -117,12 +257,10 @@ export function Projects() {
   const touch = isTouchDevice();
 
   const mobileList = useExpandableList(projects, DESKTOP_INITIAL);
-  const desktopList = useExpandableList(projects, DESKTOP_INITIAL);
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
-  // When expanded, show all projects; otherwise show initial + 1 explore card
-  const desktopPanelCount = desktopList.expanded
-    ? projects.length
-    : DESKTOP_INITIAL + 1;
+  const openOverlay = useCallback(() => setOverlayOpen(true), []);
+  const closeOverlay = useCallback(() => setOverlayOpen(false), []);
 
   const updateDots = (idx: number) => {
     if (idx === activeIndexRef.current) return;
@@ -162,8 +300,8 @@ export function Projects() {
             invalidateOnRefresh: true,
             onUpdate: (self) => {
               const idx = Math.min(
-                Math.floor(self.progress * desktopPanelCount),
-                desktopPanelCount - 1,
+                Math.floor(self.progress * PANEL_COUNT),
+                PANEL_COUNT - 1,
               );
               updateDots(idx);
             },
@@ -194,99 +332,64 @@ export function Projects() {
         scrollTrigger: { trigger: section, start: 'top 85%' },
       });
     },
-    { scope: sectionRef, dependencies: [projects.length, appReady, touch, desktopPanelCount] },
+    { scope: sectionRef, dependencies: [projects.length, appReady, touch] },
   );
 
-  // Refresh ScrollTrigger when the track expands after clicking "Explore More"
-  useEffect(() => {
-    if (!desktopList.expanded || touch || !appReady) return;
-
-    requestAnimationFrame(() => {
-      ScrollTrigger.refresh(true);
-
-      // Animate the newly revealed project panels
-      const revealedPanels = trackRef.current?.querySelectorAll('[data-project-extra]');
-      if (revealedPanels?.length) {
-        gsap.fromTo(
-          revealedPanels,
-          { opacity: 0, scale: 0.96 },
-          { opacity: 1, scale: 1, duration: 0.55, ease: 'power3.out', stagger: 0.1 },
-        );
-      }
-    });
-  }, [desktopList.expanded, touch, appReady]);
-
-  const hiddenProjects = projects.slice(DESKTOP_INITIAL);
-
   return (
-    <section id="work" ref={sectionRef} className="relative bg-void py-16 sm:py-20 md:py-0">
-      <div className="px-4 pb-8 pt-4 sm:px-6 md:absolute md:left-12 md:top-8 md:z-20 md:pb-0 md:pt-0">
-        <h2 className="heading-display text-2xl text-white sm:text-3xl md:text-4xl">
-          Selected <span className="text-gradient">Work</span>
-        </h2>
-      </div>
+    <>
+      <section id="work" ref={sectionRef} className="relative bg-void py-16 sm:py-20 md:py-0">
+        <div className="px-4 pb-8 pt-4 sm:px-6 md:absolute md:left-12 md:top-8 md:z-20 md:pb-0 md:pt-0">
+          <h2 className="heading-display text-2xl text-white sm:text-3xl md:text-4xl">
+            Selected <span className="text-gradient">Work</span>
+          </h2>
+        </div>
 
-      {/* Mobile */}
-      <div className="space-y-12 px-4 sm:space-y-16 sm:px-6 md:hidden">
-        {projects.map((project, index) => {
-          if (index >= DESKTOP_INITIAL && !mobileList.expanded) return null;
-          const isReveal = index >= DESKTOP_INITIAL && mobileList.expanded;
-          return (
-            <motion.article
-              key={project.id}
-              data-project-item
-              initial={isReveal ? { opacity: 0, y: 28 } : false}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              className="pt-2"
-            >
-              <ProjectCard project={project} enableTilt={false} />
-            </motion.article>
-          );
-        })}
-        {mobileList.hasMore && !mobileList.expanded && (
-          <div data-project-item>
-            <ExploreMoreCard
-              hiddenCount={mobileList.hiddenCount}
-              onClick={mobileList.expand}
-            />
-          </div>
-        )}
-      </div>
+        {/* Mobile */}
+        <div className="space-y-12 px-4 sm:space-y-16 sm:px-6 md:hidden">
+          {projects.map((project, index) => {
+            if (index >= DESKTOP_INITIAL && !mobileList.expanded) return null;
+            const isReveal = index >= DESKTOP_INITIAL && mobileList.expanded;
+            return (
+              <motion.article
+                key={project.id}
+                data-project-item
+                initial={isReveal ? { opacity: 0, y: 28 } : false}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                className="pt-2"
+              >
+                <ProjectCard project={project} enableTilt={false} />
+              </motion.article>
+            );
+          })}
+          {mobileList.hasMore && !mobileList.expanded && (
+            <div data-project-item>
+              <ExploreMoreCard
+                hiddenCount={mobileList.hiddenCount}
+                onClick={mobileList.expand}
+              />
+            </div>
+          )}
+        </div>
 
-      {/* Desktop: horizontal scroll panels */}
-      <div ref={pinRef} className="relative hidden h-screen w-full overflow-hidden md:block">
-        <div
-          ref={trackRef}
-          className="flex h-full flex-nowrap will-change-transform"
-          style={{ width: `${desktopPanelCount * 100}vw` }}
-        >
-          {/* First N (DESKTOP_INITIAL) projects — always visible */}
-          {projects.slice(0, DESKTOP_INITIAL).map((project) => (
-            <article
-              key={project.id}
-              className="flex h-full shrink-0 items-center px-6 py-24 md:px-16"
-              style={{ width: '100vw' }}
-            >
-              <ProjectCard project={project} enableTilt />
-            </article>
-          ))}
-
-          {/* Last panel: either ExploreMoreCard or the remaining projects */}
-          {desktopList.expanded ? (
-            // Show ALL remaining projects as separate panels
-            hiddenProjects.map((project) => (
+        {/* Desktop: fixed 5 panels — 5th is always the ExploreMoreCard */}
+        <div ref={pinRef} className="relative hidden h-screen w-full overflow-hidden md:block">
+          <div
+            ref={trackRef}
+            className="flex h-full flex-nowrap will-change-transform"
+            style={{ width: `${PANEL_COUNT * 100}vw` }}
+          >
+            {projects.slice(0, DESKTOP_INITIAL).map((project) => (
               <article
                 key={project.id}
-                data-project-extra
                 className="flex h-full shrink-0 items-center px-6 py-24 md:px-16"
                 style={{ width: '100vw' }}
               >
                 <ProjectCard project={project} enableTilt />
               </article>
-            ))
-          ) : (
-            // Show the ExploreMoreCard as a single panel
+            ))}
+
+            {/* 5th panel: Explore More card → opens overlay */}
             <article
               className="flex h-full shrink-0 items-center px-6 py-24 md:px-16"
               style={{ width: '100vw' }}
@@ -294,30 +397,33 @@ export function Projects() {
               <div className="relative mx-auto w-full max-w-6xl">
                 <div className="mx-auto max-w-md px-4">
                   <ExploreMoreCard
-                    hiddenCount={desktopList.hiddenCount}
-                    onClick={desktopList.expand}
+                    hiddenCount={projects.length - DESKTOP_INITIAL}
+                    onClick={openOverlay}
                   />
                 </div>
               </div>
             </article>
-          )}
-        </div>
+          </div>
 
-        <div ref={dotsRef} className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-          {Array.from({ length: desktopPanelCount }).map((_, i) => (
-            <span
-              key={i}
-              data-dot
-              aria-hidden
-              className="block h-2 rounded-full will-change-transform"
-              style={{
-                width: i === 0 ? 32 : 8,
-                backgroundColor: i === 0 ? '#00D4FF' : '#4B5563',
-              }}
-            />
-          ))}
+          <div ref={dotsRef} className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+            {Array.from({ length: PANEL_COUNT }).map((_, i) => (
+              <span
+                key={i}
+                data-dot
+                aria-hidden
+                className="block h-2 rounded-full will-change-transform"
+                style={{
+                  width: i === 0 ? 32 : 8,
+                  backgroundColor: i === 0 ? '#00D4FF' : '#4B5563',
+                }}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* Full-screen overlay with all projects in a grid */}
+      <ProjectsOverlay isOpen={overlayOpen} onClose={closeOverlay} />
+    </>
   );
 }
