@@ -4,6 +4,7 @@ import { gsap, isReducedMotion } from '@/lib/gsap';
 import { useAppReady } from '@/context/LenisContext';
 import { portfolio } from '@/data/portfolio';
 import { LazyImage } from './LazyImage';
+import { SectionHeader } from './SectionHeader';
 
 export function About() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -74,9 +75,7 @@ export function About() {
           {/* Content — all sections visible, each animates in on scroll */}
           <div className="w-full lg:w-[60%]">
             <div data-about-reveal>
-              <h2 className="heading-display mb-4 text-2xl text-accent sm:text-3xl lg:mb-6 lg:text-4xl">
-                About Me
-              </h2>
+              <SectionHeader number="01" title="ABOUT" />
               <p className="font-body text-sm leading-relaxed text-gray-300 sm:text-base lg:text-lg">
                 {portfolio.bio}
               </p>

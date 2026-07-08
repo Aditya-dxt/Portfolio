@@ -6,6 +6,7 @@ import { Preloader } from '@/components/Preloader';
 import { Navbar } from '@/components/Navbar';
 import { CustomCursor } from '@/components/CustomCursor';
 import { GrainOverlay } from '@/components/GrainOverlay';
+import { HudBar } from '@/components/HudBar';
 
 const Hero = lazy(() => import('@/components/Hero').then((m) => ({ default: m.Hero })));
 const About = lazy(() => import('@/components/About').then((m) => ({ default: m.About })));
@@ -125,6 +126,7 @@ export default function App() {
             }
             aria-hidden={!visible}
           >
+            <HudBar />
             <AppContent />
           </div>
         </LenisProvider>
