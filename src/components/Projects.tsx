@@ -3,7 +3,7 @@ import { useGSAP } from '@gsap/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tilt } from 'react-tilt';
 import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/gsap';
-import { useAppReady } from '@/context/LenisContext';
+import { useAppReady, useLenisInstance } from '@/context/LenisContext';
 import { isTouchDevice } from '@/lib/device';
 import { useExpandableList } from '@/hooks/useExpandableList';
 import { portfolio } from '@/data/portfolio';
@@ -174,6 +174,7 @@ function ProjectsOverlay({
   onClose: () => void;
 }) {
   const projects = portfolio.projects;
+  const lenis = useLenisInstance();
 
   // Close on Escape key
   useEffect(() => {
@@ -185,15 +186,16 @@ function ProjectsOverlay({
     return () => window.removeEventListener('keydown', onKey);
   }, [isOpen, onClose]);
 
-  // Lock body scroll when overlay is open
+  // Stop Lenis + lock body scroll when overlay is open so native scroll works
   useEffect(() => {
-    if (isOpen) {
-      document.documentElement.style.overflow = 'hidden';
-    }
+    if (!isOpen) return;
+    lenis?.stop();
+    document.documentElement.style.overflow = 'hidden';
     return () => {
+      lenis?.start();
       document.documentElement.style.overflow = '';
     };
-  }, [isOpen]);
+  }, [isOpen, lenis]);
 
   return (
     <AnimatePresence>
