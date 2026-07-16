@@ -5,6 +5,7 @@ import { gsap, isReducedMotion } from '@/lib/gsap';
 import { useAppReady } from '@/context/LenisContext';
 import { portfolio } from '@/data/portfolio';
 import { FaQuoteLeft } from 'react-icons/fa';
+import { SectionHeader } from './SectionHeader';
 
 export function Testimonials() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -34,19 +35,12 @@ export function Testimonials() {
   return (
     <section id="testimonials" ref={sectionRef} className="relative py-20 sm:py-32">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-12 text-center sm:mb-16"
-        >
-          <h2 className="heading-display text-3xl text-white sm:text-4xl md:text-5xl">
-            Testimonials
-          </h2>
+        <div className="mb-12 sm:mb-16">
+          <SectionHeader number="06" title="TESTIMONIALS" />
           <p className="mt-3 font-body text-sm text-gray-400 sm:text-base">
             What people say about me
           </p>
-        </motion.div>
+        </div>
 
         <div className="space-y-8">
           {portfolio.testimonials.map((item) => (

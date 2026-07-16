@@ -7,6 +7,7 @@ import { useMagnet } from '@/hooks/useMagnet';
 import { portfolio } from '@/data/portfolio';
 import { socialIconMap, type SocialIconKey } from '@/components/SocialLinks';
 import { FaFileDownload } from 'react-icons/fa';
+import { SectionHeader } from './SectionHeader';
 
 const fieldConfig = {
   name: { label: 'Name', placeholder: 'Your Name', type: 'text' as const },
@@ -102,29 +103,34 @@ export function Contact() {
         aria-hidden
       />
 
-      <div className="relative z-10 mx-auto w-full max-w-3xl text-center">
-        <h2
-          ref={headlineRef}
-          className="heading-display mb-4 text-2xl text-white sm:text-3xl md:text-5xl"
-        />
+      <div className="relative z-10 mx-auto w-full max-w-3xl">
+        <SectionHeader number="07" title="CONTACT" />
+        
+        <div className="mb-8 text-center sm:mb-12">
+          <h3
+            ref={headlineRef}
+            className="heading-display mb-3 text-xl text-white sm:text-2xl md:text-3xl"
+          />
+          <p className="font-body text-sm text-gray-400 sm:text-base">
+            Open to freelance, full-time, and collaboration
+          </p>
+        </div>
 
-        <p className="mb-8 font-body text-sm text-gray-400 sm:mb-12 sm:text-base">
-          Open to freelance, full-time, and collaboration
-        </p>
-
-        <a
-          ref={emailRef}
-          href={`mailto:${portfolio.email}`}
-          data-hover
-          className="group relative mb-10 inline-block max-w-full break-all font-heading text-lg text-accent sm:mb-16 sm:text-2xl md:text-4xl"
-        >
-          {portfolio.email.split('').map((char, i) => (
-            <span key={i} data-char className="inline-block will-change-transform">
-              {char}
-            </span>
-          ))}
-          <span className="absolute -bottom-1 left-0 h-0.5 w-full origin-left scale-x-0 bg-accent transition-transform duration-300 group-hover:scale-x-100" />
-        </a>
+        <div className="text-center">
+          <a
+            ref={emailRef}
+            href={`mailto:${portfolio.email}`}
+            data-hover
+            className="group relative mb-10 inline-block max-w-full break-all font-heading text-lg text-accent sm:mb-16 sm:text-2xl md:text-4xl"
+          >
+            {portfolio.email.split('').map((char, i) => (
+              <span key={i} data-char className="inline-block will-change-transform">
+                {char}
+              </span>
+            ))}
+            <span className="absolute -bottom-1 left-0 h-0.5 w-full origin-left scale-x-0 bg-accent transition-transform duration-300 group-hover:scale-x-100" />
+          </a>
+        </div>
 
         <form onSubmit={handleSubmit} className="mx-auto max-w-lg space-y-5 text-left sm:space-y-6">
           {(Object.keys(fieldConfig) as Array<keyof typeof fieldConfig>).map((field) => {

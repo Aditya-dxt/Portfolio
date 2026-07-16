@@ -1,7 +1,8 @@
 import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
-import { gsap, ScrollTrigger, scrollMarkers, isReducedMotion } from '@/lib/gsap';
+import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/gsap';
 import { portfolio } from '@/data/portfolio';
+import { SectionHeader } from './SectionHeader';
 
 const STATS = [
   { key: 'commits', label: 'Total Commits' },
@@ -36,7 +37,7 @@ export function GithubStats() {
         ScrollTrigger.create({
           trigger: el,
           start: 'top 85%',
-          markers: scrollMarkers,
+          markers: false,
           onEnter: () => {
             gsap.to(proxy, {
               val: target,
@@ -56,7 +57,7 @@ export function GithubStats() {
         ScrollTrigger.create({
           trigger: gridRef.current,
           start: 'top 80%',
-          markers: scrollMarkers,
+          markers: false,
           onEnter: () => {
             gsap.fromTo(
               cells,
@@ -88,9 +89,7 @@ export function GithubStats() {
   return (
     <section ref={sectionRef} className="py-32">
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="heading-display mb-16 text-center text-4xl text-white">
-          GitHub <span className="text-gradient">Activity</span>
-        </h2>
+        <SectionHeader number="05" title="GITHUB" />
 
         <div className="mb-12 grid grid-cols-2 gap-6 md:grid-cols-4">
           {STATS.map((stat) => (

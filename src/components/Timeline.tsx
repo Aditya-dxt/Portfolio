@@ -5,6 +5,7 @@ import { gsap, isReducedMotion } from '@/lib/gsap';
 import { useAppReady } from '@/context/LenisContext';
 import { portfolio } from '@/data/portfolio';
 import { FaBriefcase, FaGraduationCap, FaTrophy, FaCode } from 'react-icons/fa';
+import { SectionHeader } from './SectionHeader';
 
 const iconMap: Record<string, typeof FaGraduationCap> = {
   education: FaGraduationCap,
@@ -75,19 +76,12 @@ export function Timeline() {
       />
 
       <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-12 text-center sm:mb-20"
-        >
-          <h2 className="heading-display text-3xl text-white sm:text-4xl md:text-5xl">
-            Experience & <span className="text-gradient">Milestones</span>
-          </h2>
+        <div className="mb-12 sm:mb-20">
+          <SectionHeader number="04" title="TIMELINE" />
           <p className="mt-3 font-body text-sm text-gray-400 sm:mt-4 sm:text-base">
             Hackathons, leadership, and the path that shaped me.
           </p>
-        </motion.div>
+        </div>
 
         <div className="relative">
           <div className="absolute bottom-0 left-4 top-0 w-px bg-white/10 sm:left-1/2 sm:-translate-x-1/2" />
