@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useGSAP } from '@gsap/react';
-import { motion } from 'framer-motion';
+
 import { gsap, isReducedMotion } from '@/lib/gsap';
 import { useAppReady } from '@/context/LenisContext';
 import { portfolio } from '@/data/portfolio';
