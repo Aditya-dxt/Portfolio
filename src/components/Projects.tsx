@@ -10,6 +10,7 @@ import { portfolio } from '@/data/portfolio';
 import { LazyImage } from './LazyImage';
 import { ExploreMoreCard } from './ExploreMoreCard';
 import { FaGithub, FaExternalLinkAlt, FaTimes } from 'react-icons/fa';
+import { SectionHeader } from './SectionHeader';
 
 const DESKTOP_INITIAL = 4;
 const PANEL_COUNT = 5;
@@ -26,7 +27,7 @@ function ProjectCard({
       <LazyImage
         src={project.image}
         alt={project.name}
-        className="aspect-video w-full object-cover"
+        className="aspect-video w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
       />
       <a
         href={project.live}
@@ -63,6 +64,19 @@ function ProjectCard({
       </div>
 
       <div>
+        {/* Metrics callouts */}
+        {'metrics' in project && (project as any).metrics && (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {((project as any).metrics as string[]).map((metric: string) => (
+              <span
+                key={metric}
+                className="rounded-md border border-accent/20 bg-accent/5 px-2.5 py-1 font-mono text-[10px] font-medium uppercase tracking-wider text-accent"
+              >
+                {metric}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="mb-3 flex flex-wrap gap-2">
           {project.stack.map((tech) => (
             <span
@@ -114,7 +128,7 @@ function ProjectGridCard({ project }: { project: (typeof portfolio.projects)[num
         <LazyImage
           src={project.image}
           alt={project.name}
-          className="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="aspect-video w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-void/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       </div>
@@ -135,6 +149,18 @@ function ProjectGridCard({ project }: { project: (typeof portfolio.projects)[num
           )}
         </div>
         <h3 className="font-heading text-lg font-semibold text-white">{project.name}</h3>
+        {'metrics' in project && (project as any).metrics && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {((project as any).metrics as string[]).slice(0, 2).map((metric: string) => (
+              <span
+                key={metric}
+                className="rounded border border-accent/20 bg-accent/5 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-wider text-accent/80"
+              >
+                {metric}
+              </span>
+            ))}
+          </div>
+        )}
         <p className="mt-2 line-clamp-2 font-body text-xs leading-relaxed text-gray-400">
           {project.description}
         </p>
@@ -341,9 +367,7 @@ export function Projects() {
     <>
       <section id="work" ref={sectionRef} className="relative bg-void py-16 sm:py-20 md:py-0">
         <div className="px-4 pb-8 pt-4 sm:px-6 md:absolute md:left-12 md:top-8 md:z-20 md:pb-0 md:pt-0">
-          <h2 className="heading-display text-2xl text-white sm:text-3xl md:text-4xl">
-            Selected <span className="text-gradient">Work</span>
-          </h2>
+          <SectionHeader number="02" title="PROJECTS" />
         </div>
 
         {/* Mobile */}

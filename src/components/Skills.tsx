@@ -3,16 +3,21 @@ import { useGSAP } from '@gsap/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { gsap, ScrollTrigger, isReducedMotion } from '@/lib/gsap';
 import { isTouchDevice } from '@/lib/device';
+import { useAppReady } from '@/context/LenisContext';
 import { portfolio } from '@/data/portfolio';
+import { SectionHeader } from './SectionHeader';
 
 export function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
+  const stripRef = useRef<HTMLDivElement>(null);
   const [activeId, setActiveId] = useState(portfolio.skillCategories[0].id);
+  const appReady = useAppReady();
 
   const activeCategory = portfolio.skillCategories.find((c) => c.id === activeId)!;
 
+  // Marquee animation
   useGSAP(
     () => {
       if (!marqueeRef.current || isReducedMotion() || isTouchDevice()) return;
@@ -28,6 +33,7 @@ export function Skills() {
     { scope: marqueeRef },
   );
 
+  // Skill pills scatter-in animation
   useGSAP(
     () => {
       if (!gridRef.current || isReducedMotion()) return;
@@ -59,6 +65,26 @@ export function Skills() {
     { scope: gridRef, dependencies: [activeId] },
   );
 
+  // Toolkit strip stagger-in animation
+  useGSAP(
+    () => {
+      if (!stripRef.current || !appReady || isReducedMotion()) return;
+      const items = stripRef.current.querySelectorAll('[data-strip-item]');
+      gsap.from(items, {
+        opacity: 0,
+        y: 20,
+        stagger: 0.05,
+        duration: 0.5,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: stripRef.current,
+          start: 'top 85%',
+        },
+      });
+    },
+    { scope: stripRef, dependencies: [appReady] },
+  );
+
   const marqueeText = [...portfolio.marqueeSkills, ...portfolio.marqueeSkills].join(' · ');
 
   return (
@@ -70,11 +96,10 @@ export function Skills() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-6">
-        <h2 className="heading-display mb-16 text-center text-4xl text-white md:text-5xl">
-          Skills & <span className="text-gradient">Tools</span>
-        </h2>
+        <SectionHeader number="03" title="SKILLS" />
 
         <div className="grid gap-12 lg:grid-cols-2">
+          {/* Category tabs */}
           <div className="flex flex-wrap gap-2 lg:flex-col">
             {portfolio.skillCategories.map((cat) => (
               <button
@@ -98,6 +123,7 @@ export function Skills() {
             ))}
           </div>
 
+          {/* Skill pills grid */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeId}
@@ -123,22 +149,24 @@ export function Skills() {
           </AnimatePresence>
         </div>
 
-        <div className="mt-16 glass-panel rounded-2xl p-6">
-          <p className="mb-4 font-body text-xs uppercase tracking-widest text-gray-500">
-            Tech heat map
+        {/* Toolkit strip — horizontal icon+label row */}
+        <div className="mt-14">
+          <p className="mb-4 font-mono text-[10px] uppercase tracking-widest text-gray-600">
+            ── toolkit
           </p>
-          <div className="flex flex-wrap gap-2">
-            {portfolio.marqueeSkills.map((name, i) => (
-              <span
+          <div
+            ref={stripRef}
+            className="flex flex-wrap gap-3"
+          >
+            {portfolio.marqueeSkills.map((name) => (
+              <div
                 key={name}
-                className="rounded-md px-2 py-1 text-xs font-medium"
-                style={{
-                  background: `rgba(0, 212, 255, ${0.1 + (i % 5) * 0.08})`,
-                  color: `rgba(0, 212, 255, ${0.6 + (i % 3) * 0.15})`,
-                }}
+                data-strip-item
+                className="flex items-center gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2 transition-all duration-300 hover:border-accent/30 hover:bg-accent/5"
               >
-                {name}
-              </span>
+                <div className="h-1.5 w-1.5 rounded-full bg-accent/50" />
+                <span className="font-mono text-xs text-gray-400">{name}</span>
+              </div>
             ))}
           </div>
         </div>

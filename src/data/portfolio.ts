@@ -44,10 +44,10 @@ export const portfolio = {
   ],
   githubStats: {
     username: 'Aditya-dxt',
-    commits: '1240',
+    commits: '1014',
     stars: '48',
     prs: '32',
-    repos: '11',
+    repos: '19',
     avatar: 'https://github.com/Aditya-dxt.png',
     bio: 'Building impactful digital experiences · B.Tech CSE · Hackathon Finalist',
   },
@@ -420,6 +420,7 @@ export const portfolio = {
       image: '/images/projects/project1.png',
       live: 'https://civicsentinel-admin.onrender.com/',
       github: 'https://github.com/Aditya-dxt/civicsentinel-ai',
+      metrics: ['National Finalist — India Innovates 2026', 'AI/ML Powered', '3-Service Architecture'],
     },
     {
       id: '02',
@@ -430,6 +431,7 @@ export const portfolio = {
       image: '/images/projects/project2.png',
       live: 'https://sneakervault-india.vercel.app/',
       github: 'https://github.com/Aditya-dxt/mern-ecommerce-india',
+      metrics: ['Full-Stack E-Commerce', 'Stripe Payments', 'Live — Deployed'],
     },
     {
       id: '03',
@@ -440,6 +442,7 @@ export const portfolio = {
       image: '/images/projects/project3.png',
       live: 'https://interview-ai-eta-one.vercel.app/',
       github: 'https://github.com/Aditya-dxt/interview-ai',
+      metrics: ['Dual AI — OpenAI + Gemini', 'Real-Time Feedback', 'Live — Deployed'],
     },
     {
       id: '04',
@@ -450,6 +453,7 @@ export const portfolio = {
       image: '/images/projects/project4.png',
       live: 'https://brew-and-co-opal.vercel.app/',
       github: 'https://github.com/Aditya-dxt/brew-and-co-coffee-roasters',
+      metrics: ['3D Glassmorphism', 'Scroll-Driven Animations', 'Premium UI'],
     },
     {
       id: '05',
@@ -460,6 +464,7 @@ export const portfolio = {
       image: '/images/projects/project5.png',
       live: 'https://github.com/Aditya-dxt/smart-packet-analyzer',
       github: 'https://github.com/Aditya-dxt/smart-packet-analyzer',
+      metrics: ['Real-Time Capture', 'Protocol Analysis', 'Cybersecurity'],
     },
     {
       id: '06',
@@ -470,6 +475,7 @@ export const portfolio = {
       image: '/images/projects/project6.png',
       live: 'https://waterfall-login-ui.vercel.app/',
       github: 'https://github.com/Aditya-dxt/waterfall-login-UI',
+      metrics: ['CSS3 Animations', 'Glassmorphism', 'Micro-Interactions'],
     },
   ],
   skillCategories: [
