@@ -18,6 +18,7 @@ export const portfolio = {
   hackerrank: 'https://www.hackerrank.com/profile/aditya_dxt',
   instagram: 'https://www.instagram.com/indeedaditya/',
   resumePath: '/resume/SDE-Resume.pdf',
+  bookingUrl: 'https://calendly.com/adityadxt1910/30min',
   profileImage: '/images/aditya-portrait.png',
   bio: `I'm a passionate developer and tech enthusiast who thrives on building impactful digital experiences through code and creativity. From architecting full-stack applications to competing in national-level hackathons, I'm constantly pushing boundaries and exploring emerging technologies. I specialize in turning complex ideas into elegant, functional products — whether it's an AI-powered platform, a production-grade e-commerce system, or an innovative civic-tech solution.`,
   motto: 'I turn curiosity into code and ideas into experiences.',

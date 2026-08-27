@@ -6,7 +6,7 @@ import { useScramble } from '@/hooks/useScramble';
 import { useMagnet } from '@/hooks/useMagnet';
 import { portfolio } from '@/data/portfolio';
 import { socialIconMap, type SocialIconKey } from '@/components/SocialLinks';
-import { FaFileDownload } from 'react-icons/fa';
+import { FaFileDownload, FaCalendarAlt } from 'react-icons/fa';
 import { SectionHeader } from './SectionHeader';
 
 const fieldConfig = {
@@ -203,7 +203,11 @@ export function Contact() {
             icon={FaFileDownload}
             download
           />
+          <ContactSocialCard href={portfolio.bookingUrl} label="Book a call" icon={FaCalendarAlt} />
         </div>
+        <p className="mt-6 text-center font-body text-xs text-gray-500">
+          Prefer to talk? <a href={portfolio.bookingUrl} target="_blank" rel="noopener noreferrer" className="text-accent underline">Book a 30-min call on Calendly</a> — free, pick a slot that suits you.
+        </p>
       </div>
     </section>
   );
