@@ -53,7 +53,8 @@ export function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
   const emailRef = useRef<HTMLAnchorElement>(null);
   const headlineRef = useScramble("LET'S BUILD SOMETHING GREAT", 1.5, true);
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<"idle"|"sending"|"sent"|"error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
   useGSAP(
     () => {
@@ -82,10 +83,33 @@ export function Contact() {
     { scope: sectionRef },
   );
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 4000);
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const payload = {
+      name: String(data.get("name")||""),
+      email: String(data.get("email")||""),
+      message: String(data.get("message")||""),
+      _subject: `Portfolio contact — ${String(data.get("name")||"Someone")} via aditya-dixit.vercel.app`,
+      _captcha: "false",
+      _template: "table",
+    };
+    setStatus("sending"); setErrorMsg("");
+    try {
+      const r = await fetch("https://formsubmit.co/ajax/adityadxt1910@gmail.com", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const j = await r.json().catch(()=> ({}));
+      if (!r.ok) throw new Error(j.message || `HTTP ${r.status}`);
+      setStatus("sent"); form.reset();
+      setTimeout(()=> setStatus("idle"), 6000);
+    } catch (err) {
+      setStatus("error"); setErrorMsg(err instanceof Error ? err.message : "Failed — try email directly.");
+      setTimeout(()=> setStatus("idle"), 5000);
+    }
   };
 
   return (
@@ -166,20 +190,31 @@ export function Contact() {
           <button
             type="submit"
             data-hover
-            className="w-full rounded-xl bg-gradient-to-r from-accent to-purple py-3.5 font-body font-medium text-void transition-opacity hover:opacity-90 sm:py-4"
+            disabled={status==="sending"}
+            className="w-full rounded-xl bg-gradient-to-r from-accent to-purple py-3.5 font-body font-medium text-void transition-opacity hover:opacity-90 sm:py-4 disabled:opacity-60"
           >
-            Send Message
+            {status==="sending" ? "Sending…" : status==="sent" ? "Sent ✓ — check your inbox" : status==="error" ? "Retry" : "Send Message"}
           </button>
 
           <AnimatePresence>
-            {submitted && (
+            {status==="sent" && (
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 className="text-center text-sm text-accent"
               >
-                Thanks! Your message has been received. (Demo — connect a backend for production.)
+                Thanks! Your message reached me at adityadxt1910@gmail.com — I'll reply soon. Free tier via FormSubmit (no server to run).
+              </motion.p>
+            )}
+            {status==="error" && (
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="text-center text-sm text-red-400"
+              >
+                {errorMsg || "Couldn't send. You can email me directly at adityadxt1910@gmail.com."}
               </motion.p>
             )}
           </AnimatePresence>
