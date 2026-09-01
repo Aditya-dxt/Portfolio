@@ -108,12 +108,28 @@ export function LenisProvider({ enabled, onReady, children }: LenisProviderProps
 
     const debouncedRefresh = debounce(refresh, 250);
 
+    // ROOT FIX: child ScrollTriggers mount synchronously before parent effect
+    // runs → positions calc against stale window scroll. Force refreshes
+    // after proxy is installed, after fonts settle, and after DOM paints.
+    const handleFontsReady = () => {
+      if (document.fonts?.ready) {
+        document.fonts.ready.then(() => {
+          lenis.resize();
+          ScrollTrigger.refresh(true);
+          requestAnimationFrame(() => ScrollTrigger.refresh(true));
+        });
+      }
+    };
+    handleFontsReady();
+
     const finishBoot = () => {
       window.scrollTo(0, 0);
       lenis.scrollTo(0, { immediate: true });
       refresh();
       requestAnimationFrame(() => {
         refresh();
+        // One more tick after fonts + layout settle
+        window.setTimeout(() => ScrollTrigger.refresh(true), 100);
         setAppReady(true);
         onReadyRef.current?.();
         window.dispatchEvent(new CustomEvent('app-ready'));
@@ -124,8 +140,21 @@ export function LenisProvider({ enabled, onReady, children }: LenisProviderProps
     lenis.scrollTo(0, { immediate: true });
     refresh();
 
+    // Extra rAF refresh to catch child triggers that mounted before proxy was set
+    requestAnimationFrame(() => ScrollTrigger.refresh(true));
+    handleFontsReady();
+
     const t1 = window.setTimeout(finishBoot, 350);
-    window.addEventListener('load', debouncedRefresh);
+    window.addEventListener('load', () => {
+      handleFontsReady();
+      debouncedRefresh();
+    });
+    // Also re-refresh when fonts actually load late (serif/script)
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => {
+        window.setTimeout(() => ScrollTrigger.refresh(true), 80);
+      });
+    }
     window.addEventListener('resize', debouncedRefresh);
 
     return () => {

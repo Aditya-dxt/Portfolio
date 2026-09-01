@@ -94,7 +94,7 @@ export function Preloader({ onComplete }: PreloaderProps) {
         </span>
         <h1
           data-name
-          className="heading-display text-2xl text-white opacity-0 md:text-4xl"
+          className="heading-display text-2xl text-[var(--text-light)] opacity-0 md:text-4xl"
         >
           {portfolio.name}
         </h1>

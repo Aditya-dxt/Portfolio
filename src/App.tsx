@@ -1,136 +1,65 @@
-import { lazy, Suspense, useState, useEffect } from 'react';
-import { isReducedMotion } from '@/lib/gsap';
+import { Suspense, useState, useEffect } from 'react';
 import { LenisProvider } from '@/context/LenisContext';
 import { useCursor } from '@/hooks/useCursor';
-import { Preloader } from '@/components/Preloader';
-import { Navbar } from '@/components/Navbar';
 import { CustomCursor } from '@/components/CustomCursor';
 import { GrainOverlay } from '@/components/GrainOverlay';
-import { HudBar } from '@/components/HudBar';
-
-const Hero = lazy(() => import('@/components/Hero').then((m) => ({ default: m.Hero })));
-const About = lazy(() => import('@/components/About').then((m) => ({ default: m.About })));
-const Skills = lazy(() => import('@/components/Skills').then((m) => ({ default: m.Skills })));
-const Projects = lazy(() =>
-  import('@/components/Projects').then((m) => ({ default: m.Projects })),
-);
-const Timeline = lazy(() =>
-  import('@/components/Timeline').then((m) => ({ default: m.Timeline })),
-);
-const Education = lazy(() =>
-  import('@/components/Education').then((m) => ({ default: m.Education })),
-);
-const GithubStats = lazy(() =>
-  import('@/components/GithubStats').then((m) => ({ default: m.GithubStats })),
-);
-const Testimonials = lazy(() =>
-  import('@/components/Testimonials').then((m) => ({ default: m.Testimonials })),
-);
-const Photography = lazy(() =>
-  import('@/components/Photography').then((m) => ({ default: m.Photography })),
-);
-const Contact = lazy(() =>
-  import('@/components/Contact').then((m) => ({ default: m.Contact })),
-);
-const Footer = lazy(() => import('@/components/Footer').then((m) => ({ default: m.Footer })));
+import { NavbarEditorial } from '@/components/editorial/NavbarEditorial';
+import { ScrollProgress } from '@/components/editorial/ScrollProgress';
+import { HeroEditorial } from '@/components/editorial/HeroEditorial';
+import { ProjectsEditorial } from '@/components/editorial/ProjectsEditorial';
+import { ProcessSkills } from '@/components/editorial/ProcessSkills';
+import { EducationEditorial } from '@/components/editorial/EducationEditorial';
+import { ExperienceEditorial } from '@/components/editorial/ExperienceEditorial';
+import { HackathonsEditorial } from '@/components/editorial/HackathonsEditorial';
+import { PhotographyEditorial } from '@/components/editorial/PhotographyEditorial';
+import { ContactEditorial } from '@/components/editorial/ContactEditorial';
+import { useReveal } from '@/components/editorial/Reveal';
 
 function SectionFallback() {
   return (
-    <div className="flex min-h-[50vh] items-center justify-center bg-void">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+    <div className="flex min-h-[30vh] items-center justify-center bg-[var(--bg-light)]">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />
     </div>
   );
 }
 
-function AppContent() {
+function EditorialShell() {
+  const revealRef = useReveal();
   return (
-    <div className="min-h-screen bg-void">
-      <Navbar />
+    <div ref={revealRef} className="min-h-screen bg-[var(--bg-light)]">
+      <NavbarEditorial />
       <main>
-        <Suspense fallback={<SectionFallback />}>
-          <Hero />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <About />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Skills />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Projects />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Education />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Timeline />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <GithubStats />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Testimonials />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Photography />
-        </Suspense>
-        <Suspense fallback={<SectionFallback />}>
-          <Contact />
-        </Suspense>
+        <Suspense fallback={<SectionFallback />}><HeroEditorial /></Suspense>
+        <Suspense fallback={<SectionFallback />}><ProjectsEditorial /></Suspense>
+        <Suspense fallback={<SectionFallback />}><ProcessSkills /></Suspense>
+        <Suspense fallback={<SectionFallback />}><EducationEditorial /></Suspense>
+        <Suspense fallback={<SectionFallback />}><ExperienceEditorial /></Suspense>
+        <Suspense fallback={<SectionFallback />}><HackathonsEditorial /></Suspense>
+        <Suspense fallback={<SectionFallback />}><PhotographyEditorial /></Suspense>
+        <Suspense fallback={<SectionFallback />}><ContactEditorial /></Suspense>
       </main>
-      <Suspense fallback={null}>
-        <Footer />
-      </Suspense>
     </div>
   );
 }
 
 export default function App() {
-  const [booted, setBooted] = useState(isReducedMotion());
-  const [visible, setVisible] = useState(isReducedMotion());
+  const [visible, setVisible] = useState(true);
   useCursor();
 
   useEffect(() => {
-    if (typeof history !== 'undefined') {
-      history.scrollRestoration = 'manual';
-    }
+    if (typeof history !== 'undefined') history.scrollRestoration = 'manual';
   }, []);
-
-  useEffect(() => {
-    if (!booted) {
-      document.documentElement.style.overflow = 'hidden';
-      return () => {
-        document.documentElement.style.overflow = '';
-      };
-    }
-    document.documentElement.style.overflow = '';
-  }, [booted]);
-
-  const handlePreloaderComplete = () => {
-    window.scrollTo(0, 0);
-    setBooted(true);
-  };
 
   return (
     <>
       <CustomCursor />
       <GrainOverlay />
-      {!booted && <Preloader onComplete={handlePreloaderComplete} />}
-      {booted && (
-        <LenisProvider enabled onReady={() => setVisible(true)}>
-          <div
-            className={
-              visible
-                ? 'opacity-100 transition-opacity duration-300'
-                : 'pointer-events-none opacity-0'
-            }
-            aria-hidden={!visible}
-          >
-            <HudBar />
-            <AppContent />
+      <ScrollProgress />
+      <LenisProvider enabled onReady={() => setVisible(true)}>
+          <div className={visible ? 'opacity-100 transition-opacity duration-300' : 'pointer-events-none opacity-0'} aria-hidden={!visible}>
+            <EditorialShell />
           </div>
         </LenisProvider>
-      )}
     </>
   );
 }
