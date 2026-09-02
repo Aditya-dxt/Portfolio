@@ -1,431 +1,330 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 
-type Photo = { src: string; alt: string; title: string };
+// React Bits Masonry — scroll-triggered + aspect-preserved portrait
+type PhotoItem = { id: string; img: string; height: number; alt: string; title: string };
 
-const photos: Photo[] = [
-  { src: '/images/photography/A.jpeg', alt: 'Moon night sky', title: 'A' },
-  { src: '/images/photography/B.jpg', alt: 'Street lamp at dusk', title: 'B' },
-  { src: '/images/photography/C.jpeg', alt: 'River ghat evening', title: 'C' },
-  { src: '/images/photography/D.jpeg', alt: 'Park street lamps at night', title: 'D' },
-  { src: '/images/photography/E.jpeg', alt: 'Basketball hoop under sky', title: 'E' },
-  { src: '/images/photography/F.jpeg', alt: 'Palm street lamp night', title: 'F' },
-  { src: '/images/photography/G.jpg', alt: 'Moon through branches', title: 'G' },
-  { src: '/images/photography/H.jpeg', alt: 'City lights reflections', title: 'H' },
-  { src: '/images/photography/I.jpeg', alt: 'Evening skyline', title: 'I' },
-  { src: '/images/photography/J.jpeg', alt: 'Street perspective', title: 'J' },
-  { src: '/images/photography/K.jpeg', alt: 'Night architecture', title: 'K' },
-  { src: '/images/photography/L.jpeg', alt: 'Golden hour capture', title: 'L' },
-  { src: '/images/photography/M.jpeg', alt: 'Urban frame', title: 'M' },
-  { src: '/images/photography/N.jpeg', alt: 'Light trails', title: 'N' },
-  { src: '/images/photography/O.jpeg', alt: 'Quiet night', title: 'O' },
-  { src: '/images/photography/P.jpeg', alt: 'Through my lens — P', title: 'P' },
+const items: PhotoItem[] = [
+  { id: 'A', img: '/images/photography/A.jpeg', height: 520, alt: 'Moon night sky', title: 'A' },
+  { id: 'B', img: '/images/photography/B.jpg', height: 680, alt: 'Street lamp at dusk', title: 'B' },
+  { id: 'C', img: '/images/photography/C.jpeg', height: 520, alt: 'River ghat evening', title: 'C' },
+  { id: 'D', img: '/images/photography/D.jpeg', height: 640, alt: 'Park street lamps at night', title: 'D' },
+  { id: 'E', img: '/images/photography/E.jpeg', height: 720, alt: 'Basketball hoop under sky', title: 'E' },
+  { id: 'F', img: '/images/photography/F.jpg', height: 620, alt: 'Palm street lamp night', title: 'F' },
+  { id: 'G', img: '/images/photography/G.jpeg', height: 680, alt: 'Moon through branches', title: 'G' },
+  { id: 'H', img: '/images/photography/H.jpeg', height: 580, alt: 'City lights reflections', title: 'H' },
+  { id: 'I', img: '/images/photography/I.jpeg', height: 720, alt: 'Evening skyline', title: 'I' },
+  { id: 'J', img: '/images/photography/J.jpeg', height: 620, alt: 'Street perspective', title: 'J' },
+  { id: 'K', img: '/images/photography/K.jpeg', height: 700, alt: 'Night architecture', title: 'K' },
+  { id: 'L', img: '/images/photography/L.jpeg', height: 640, alt: 'Golden hour capture', title: 'L' },
+  { id: 'M', img: '/images/photography/M.jpeg', height: 680, alt: 'Urban frame', title: 'M' },
+  { id: 'N', img: '/images/photography/N.jpeg', height: 600, alt: 'Light trails', title: 'N' },
+  { id: 'O', img: '/images/photography/O.jpeg', height: 700, alt: 'Quiet night', title: 'O' },
 ];
 
-function getZIndex(arrLen: number, index: number, active: number) {
-  return arrLen - Math.abs(index - active);
-}
+const useMedia = (queries: string[], values: number[], defaultValue: number) => {
+  const get = () => {
+    if (typeof window === 'undefined') return defaultValue;
+    return values[queries.findIndex((q) => matchMedia(q).matches)] ?? defaultValue;
+  };
+  const [value, setValue] = useState(get);
+  useEffect(() => {
+    const handler = () => setValue(get());
+    queries.forEach((q) => matchMedia(q).addEventListener('change', handler));
+    return () => queries.forEach((q) => matchMedia(q).removeEventListener('change', handler));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queries]);
+  return value;
+};
+
+const useMeasure = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setSize({ width, height });
+    });
+    ro.observe(ref.current);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, size] as const;
+};
 
 export function PhotographyEditorial() {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(50);
-  const progressRef = useRef(50);
-  const targetRef = useRef(50);
-  const rafRef = useRef<number | null>(null);
-  const startXRef = useRef(0);
-  const isDownRef = useRef(false);
-  const didDragRef = useRef(false);
-  const hoverRef = useRef(false);
-  const [selected, setSelected] = useState<number | null>(null);
-  const n = photos.length;
-  const active = Math.floor((progress / 100) * (n - 1));
-  const clamp = (v: number) => Math.max(0, Math.min(100, v));
-
-  useEffect(() => {
-    progressRef.current = progress;
-    targetRef.current = progress;
-  }, []);
-
-  const smoothTo = useCallback(
-    (next: number) => {
-      if (selected !== null) return;
-      targetRef.current = clamp(next);
-      if (rafRef.current != null) return;
-      const tick = () => {
-        const cur = progressRef.current;
-        const tgt = targetRef.current;
-        const diff = tgt - cur;
-        if (Math.abs(diff) < 0.08) {
-          progressRef.current = tgt;
-          setProgress(tgt);
-          rafRef.current = null;
-          return;
-        }
-        const eased = cur + diff * 0.14;
-        progressRef.current = eased;
-        setProgress(eased);
-        rafRef.current = requestAnimationFrame(tick);
-      };
-      rafRef.current = requestAnimationFrame(tick);
-    },
-    [selected],
+  const columns = useMedia(
+    ['(min-width:1280px)', '(min-width:900px)', '(min-width:600px)', '(min-width:400px)'],
+    [4, 4, 3, 2],
+    1
   );
+  const [containerRef, { width }] = useMeasure();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [imagesReady, setImagesReady] = useState(false);
+  const [ratios, setRatios] = useState<Record<string, number>>({});
+  const [selected, setSelected] = useState<PhotoItem | null>(null);
 
+  // preload + capture natural aspect so vertical stays vertical
   useEffect(() => {
-    const el = wrapRef.current;
-    if (!el) return;
-    let wheelAccum = 0;
-    const onWheel = (e: WheelEvent) => {
-      if (selected !== null) {
-        e.preventDefault();
-        return;
-      }
-      if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
-      e.preventDefault();
-      e.stopPropagation();
-      const delta = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
-      wheelAccum += delta * 0.035;
-      if (rafRef.current == null) {
-        const nextTarget = clamp(targetRef.current + wheelAccum);
-        wheelAccum = 0;
-        smoothTo(nextTarget);
-        setTimeout(() => {
-          if (wheelAccum !== 0) {
-            targetRef.current = clamp(targetRef.current + wheelAccum);
-            wheelAccum = 0;
-          }
-        }, 16);
-      } else {
-        targetRef.current = clamp(targetRef.current + delta * 0.035);
-      }
-    };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
-  }, [n, smoothTo, selected]);
-
-  const onDown = useCallback(
-    (e: React.MouseEvent | React.TouchEvent) => {
-      if (selected !== null) return;
-      isDownRef.current = true;
-      didDragRef.current = false;
-      const x = (e as React.MouseEvent).clientX ?? (e as React.TouchEvent).touches?.[0]?.clientX ?? 0;
-      startXRef.current = x;
-      if (wrapRef.current) wrapRef.current.style.cursor = 'grabbing';
-    },
-    [selected],
-  );
-
-  const onMove = useCallback(
-    (e: React.MouseEvent | React.TouchEvent) => {
-      if (!isDownRef.current || selected !== null) return;
-      const x = (e as React.MouseEvent).clientX ?? (e as React.TouchEvent).touches?.[0]?.clientX ?? 0;
-      if (Math.abs(x - startXRef.current) > 4) didDragRef.current = true;
-      const diff = (x - startXRef.current) * -0.14;
-      startXRef.current = x;
-      const next = clamp(targetRef.current + diff);
-      targetRef.current = next;
-      progressRef.current = next;
-      setProgress(next);
-    },
-    [selected],
-  );
-
-  const onUp = useCallback(() => {
-    isDownRef.current = false;
-    if (wrapRef.current) wrapRef.current.style.cursor = 'grab';
-    setTimeout(() => {
-      didDragRef.current = false;
-    }, 0);
-  }, []);
-
-  useEffect(() => {
-    const h = () => {
-      isDownRef.current = false;
-      if (wrapRef.current) wrapRef.current.style.cursor = 'grab';
-    };
-    window.addEventListener('mouseup', h);
-    window.addEventListener('touchend', h);
+    let cancelled = false;
+    Promise.all(
+      items.map(
+        (it) =>
+          new Promise<{ id: string; ratio: number }>((resolve) => {
+            const img = new Image();
+            img.src = it.img;
+            const done = () => {
+              const r = img.naturalWidth ? img.naturalHeight / img.naturalWidth : it.height / 400;
+              resolve({ id: it.id, ratio: r });
+            };
+            img.onload = done;
+            img.onerror = () => resolve({ id: it.id, ratio: it.height / 400 });
+          })
+      )
+    ).then((arr) => {
+      if (cancelled) return;
+      const map: Record<string, number> = {};
+      arr.forEach(({ id, ratio }) => {
+        // clamp: never force landscape on a portrait source — keep at least 0.85, cap ultra-tall at 1.6
+        map[id] = Math.min(1.65, Math.max(0.85, ratio));
+      });
+      setRatios(map);
+      setImagesReady(true);
+    });
     return () => {
-      window.removeEventListener('mouseup', h);
-      window.removeEventListener('touchend', h);
+      cancelled = true;
     };
   }, []);
 
-  useEffect(
-    () => () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    },
-    [],
-  );
-
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const hover = hoverRef.current || selected !== null || document.activeElement === wrapRef.current;
-      if (!hover) return;
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-        e.preventDefault();
-        if (selected !== null) {
-          setSelected((s) => {
-            if (s == null) return s;
-            const nxt = e.key === 'ArrowLeft' ? Math.max(0, s - 1) : Math.min(n - 1, s + 1);
-            const t = (nxt / n) * 100 + 10;
-            targetRef.current = clamp(t);
-            progressRef.current = clamp(t);
-            setProgress(clamp(t));
-            return nxt;
-          });
-        } else {
-          smoothTo(targetRef.current + (e.key === 'ArrowLeft' ? -100 / n : 100 / n));
-        }
-      } else if (e.key === 'Escape' && selected !== null) {
-        setSelected(null);
-      }
-    };
+    if (!selected) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setSelected(null);
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selected, n, smoothTo]);
+  }, [selected]);
 
-  const jumpTo = (i: number) => smoothTo((i / n) * 100 + 10);
+  const grid = useMemo(() => {
+    if (!width) return [];
+    const colHeights = new Array(columns).fill(0);
+    const columnWidth = width / columns;
+    return items.map((child) => {
+      const col = colHeights.indexOf(Math.min(...colHeights));
+      const x = columnWidth * col;
+      // portrait-preserving height: use real image ratio when available, fallback to height prop
+      const ratio = ratios[child.id] ?? child.height / 400;
+      const h = columnWidth * ratio;
+      const y = colHeights[col];
+      colHeights[col] += h + 12;
+      return { ...child, x, y, w: columnWidth, h };
+    });
+  }, [columns, width, ratios]);
 
-  const handlePick = (i: number) => {
-    if (didDragRef.current) return;
-    if (selected !== null) return;
-    jumpTo(i);
-    // animate the fan to center, then FLIP to spotlight — no gap jump
-    setTimeout(() => setSelected(i), 360);
-  };
+  const containerHeight = useMemo(() => {
+    if (!grid.length) return 480;
+    return Math.max(...grid.map((g) => g.y + g.h));
+  }, [grid]);
+
+  // Lenis-aware ScrollTrigger refresh when grid settles
+  useEffect(() => {
+    if (!grid.length || !imagesReady) return;
+    const t = setTimeout(() => ScrollTrigger.refresh(), 120);
+    return () => clearTimeout(t);
+  }, [grid, imagesReady]);
+
+  // GSAP: heading + masonry scroll-linked reveal
+  useLayoutEffect(() => {
+    if (!sectionRef.current || !grid.length || !imagesReady) return;
+    const ctx = gsap.context(() => {
+      // heading parallax + fade on scroll
+      gsap.fromTo(
+        '[data-photo-head]',
+        { y: 18, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.9,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 82%',
+            end: 'top 62%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      );
+      gsap.fromTo(
+        '[data-photo-sub]',
+        { y: 12, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.7,
+          delay: 0.12,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 82%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      );
+
+      // position wrappers instantly (no tween) — then animate inner cards on scroll
+      grid.forEach((item) => {
+        gsap.set(`[data-key="${item.id}"]`, { x: item.x, y: item.y, width: item.w, height: item.h });
+      });
+
+      // stagger the card inners as you scroll down — each batch reveals when it hits 92% viewport
+      // using ScrollTrigger.batch for true "slowly comes as you scroll"
+      ScrollTrigger.batch('[data-masonry-card]', {
+        onEnter: (batch) =>
+          gsap.fromTo(
+            batch,
+            { y: 48, opacity: 0, filter: 'blur(6px)', scale: 0.96 },
+            {
+              y: 0,
+              opacity: 1,
+              filter: 'blur(0px)',
+              scale: 1,
+              duration: 0.85,
+              ease: 'power3.out',
+              stagger: 0.07,
+              overwrite: 'auto',
+            }
+          ),
+        onLeaveBack: (batch) =>
+          gsap.to(batch, { y: 18, opacity: 0.0, duration: 0.25, overwrite: 'auto' }),
+        start: 'top 92%',
+        end: 'bottom 10%',
+      });
+
+      // initial state for cards not yet batched (below fold) — keep hidden until trigger
+      gsap.set('[data-masonry-card]', { y: 48, opacity: 0, filter: 'blur(6px)' });
+      // trigger a refresh so batch attaches correctly
+      ScrollTrigger.refresh();
+    }, sectionRef);
+    return () => ctx.revert();
+    // grid is dependency for positions; ratios/imagesReady gate the reveal
+  }, [grid, imagesReady]);
+
+  // keep layout in sync on resize without re-animating invisibly
+  useLayoutEffect(() => {
+    if (!grid.length) return;
+    grid.forEach((item) => {
+      gsap.to(`[data-key="${item.id}"]`, {
+        x: item.x,
+        y: item.y,
+        width: item.w,
+        height: item.h,
+        duration: 0.5,
+        ease: 'power3.out',
+        overwrite: 'auto',
+      });
+    });
+  }, [grid]);
 
   return (
-    <section id="photography" className="bg-[#FAF7F0] border-t border-[rgba(200,155,60,0.14)]">
+    <section ref={sectionRef} id="photography" className="bg-[#FAF7F0] border-t border-[rgba(200,155,60,0.14)]">
       <div className="mx-auto max-w-[1400px] px-[4vw] py-[72px] sm:py-[90px]">
         <div className="text-center mb-8 sm:mb-10">
-          <span className="font-mono text-[0.72rem] tracking-[0.14em] text-[#C89B3C]">07 / PHOTOGRAPHY</span>
-          <h2 className="mt-2 font-serif text-[clamp(2rem,5vw,3.6rem)] font-extrabold leading-none tracking-tight text-[#0F1F3D]">
+          <span data-photo-head className="font-mono text-[0.72rem] tracking-[0.14em] text-[#C89B3C] inline-block">
+            07 / PHOTOGRAPHY
+          </span>
+          <h2 data-photo-head className="mt-2 font-serif text-[clamp(2rem,5vw,3.6rem)] font-extrabold leading-none tracking-tight text-[#0F1F3D]">
             THROUGH <span className="text-[#C89B3C]">MY</span> LENS
           </h2>
-          <p className="mt-3 font-mono text-[0.78rem] tracking-wide text-[#756F65]">
-            Capturing moments, one frame at a time — drag, scroll, arrows or tap to explore
+          <p data-photo-sub className="mt-3 font-mono text-[0.78rem] tracking-wide text-[#756F65]">
+            A masonry of moments — each frame finds its place, just like memory
           </p>
           <div className="mx-auto mt-5 h-[2px] w-10 bg-[#C89B3C]/60" />
         </div>
 
         <div
-          ref={wrapRef}
-          tabIndex={0}
-          aria-label="Photography carousel — use arrow keys, drag or scroll"
-          onMouseEnter={() => {
-            hoverRef.current = true;
-            wrapRef.current?.focus({ preventScroll: true });
-          }}
-          onMouseLeave={() => {
-            hoverRef.current = false;
-          }}
-          onFocus={() => {
-            hoverRef.current = true;
-          }}
-          onBlur={() => {
-            hoverRef.current = false;
-          }}
-          onMouseDown={onDown}
-          onMouseMove={onMove}
-          onMouseUp={onUp}
-          onTouchStart={onDown}
-          onTouchMove={onMove}
-          onTouchEnd={onUp}
-          className="relative select-none overflow-hidden rounded-[20px] border border-[rgba(200,155,60,0.18)] bg-[#0F1F3D] shadow-[0_20px_60px_rgba(15,31,61,0.18)] outline-none focus-visible:ring-2 focus-visible:ring-[#C89B3C]/40"
-          style={{ height: 'min(72vh, 640px)', minHeight: 460, cursor: selected !== null ? 'default' : 'grab', touchAction: 'pan-y' }}
+          ref={containerRef}
+          className="relative w-full rounded-[20px] border border-[rgba(200,155,60,0.14)] bg-white/60 shadow-[0_16px_48px_rgba(15,31,61,0.08)] overflow-hidden p-2 sm:p-3"
+          style={{ height: containerHeight }}
         >
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden sm:flex items-center">
-            <div className="ml-6 sm:ml-8 rotate-180 [writing-mode:vertical-lr] font-mono text-[0.62rem] tracking-[0.18em] text-[#F3E8D0]/45">
-              CAPTURING MOMENTS — KANPUR · INDIA — THROUGH MY LENS
+          {!imagesReady && (
+            <div className="absolute inset-0 grid place-items-center font-mono text-xs tracking-wide text-[#756F65]">
+              Loading frames…
             </div>
-          </div>
-          <div className="pointer-events-none absolute left-[72px] top-0 hidden h-full w-px bg-[rgba(243,232,208,0.08)] sm:block" />
-          <div className="pointer-events-none absolute right-6 top-6 hidden sm:flex h-7 w-7 items-center justify-center rounded-full border border-[rgba(243,232,208,0.14)] bg-[rgba(243,232,208,0.06)] font-mono text-[0.68rem] text-[#F3E8D0]/70">
-            S
-          </div>
-          <div className="pointer-events-none absolute right-5 top-1/2 z-10 hidden -translate-y-1/2 flex-col gap-2 sm:flex" aria-hidden>
-            {photos.map((_, i) => (
-              <span
-                key={i}
-                className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${i === active ? 'bg-[#C89B3C] shadow-[0_0_8px_rgba(200,155,60,0.9)] scale-[1.4]' : selected !== null && selected === i ? 'bg-[#C89B3C]/70' : 'bg-[rgba(243,232,208,0.22)]'}`}
-              />
-            ))}
-          </div>
-
-          {/* fanned stack — each card shares layoutId with its spotlight so it morphs */}
-          <div className={`absolute inset-0 transition-[filter] duration-500 ${selected !== null ? 'blur-[1.5px] brightness-[0.72]' : ''}`}>
-            {photos.map((p, i) => {
-              const zIndex = getZIndex(n, i, active);
-              const activeOffset = (i - active) / n;
-              const x = activeOffset * 800;
-              const y = activeOffset * 200;
-              const rot = activeOffset * 120;
-              const cardOpacity = Math.max(0, Math.min(1, (zIndex / n) * 3 - 2));
-              const isPicked = selected === i;
-
-              return (
-                <div
-                  key={p.src}
-                  onClick={() => handlePick(i)}
-                  className={`absolute left-1/2 top-1/2 ${isPicked ? 'pointer-events-none' : 'cursor-pointer'}`}
-                  style={
-                    {
-                      width: 'clamp(150px, 28vw, 300px)',
-                      height: 'clamp(200px, 38vw, 400px)',
-                      marginLeft: 'calc(clamp(150px, 28vw, 300px) * -0.5)',
-                      marginTop: 'calc(clamp(200px, 38vw, 400px) * -0.5)',
-                      zIndex,
-                      transform: `translate(${x}%, ${y}%) rotate(${rot}deg)`,
-                      transformOrigin: '0% 100%',
-                      transition: isPicked ? 'transform 0.4s ease' : 'transform 0.85s cubic-bezier(0, 0.02, 0, 1)',
-                    } as any
-                  }
-                >
-                  {/* vacancy — stays behind the morphing card so gap is visible */}
-                  {isPicked && (
-                    <div className="absolute inset-0 rounded-xl border-2 border-dashed border-[rgba(200,155,60,0.32)] bg-[rgba(243,232,208,0.06)] flex items-center justify-center">
-                      <span className="font-mono text-[0.68rem] tracking-wide text-[#F3E8D0]/35">
-                        {String(i + 1).padStart(2, '0')} · {p.title}
-                      </span>
-                    </div>
-                  )}
-                  <motion.div
-                    layoutId={`photo-${i}`}
-                    transition={{ type: 'spring', stiffness: 420, damping: 34, mass: 0.85 }}
-                    className="relative h-full w-full overflow-hidden rounded-xl border shadow-[0_16px_40px_rgba(0,0,0,0.45)] border-[rgba(243,232,208,0.14)] bg-black"
-                    style={{ opacity: isPicked ? 0 : cardOpacity, pointerEvents: isPicked ? 'none' : 'auto' }}
-                  >
-                    <img src={p.src} alt={p.alt} loading="lazy" draggable={false} className="h-full w-full object-cover" />
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/30 via-transparent via-50% to-black/55" />
-                    <span className="pointer-events-none absolute left-4 top-2 font-serif text-[clamp(28px,8vw,72px)] leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <span className="pointer-events-none absolute bottom-4 left-4 font-serif text-[clamp(16px,2.5vw,26px)] tracking-wide text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.7)]">
-                      {p.title}
-                    </span>
-                    <span className="pointer-events-none absolute bottom-3 right-3 hidden sm:inline-flex rounded-full border border-white/15 bg-black/30 px-2 py-0.5 font-mono text-[0.60rem] tracking-wide text-white/80 backdrop-blur">
-                      {p.alt}
-                    </span>
-                  </motion.div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* spotlight — same layoutId as the picked card => true FLIP from its fanned spot */}
-          <AnimatePresence>
-            {selected !== null && (
-              <>
-                <motion.button
-                  key="spot-backdrop"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  onClick={() => setSelected(null)}
-                  className="absolute inset-0 z-20 bg-[#0F1F3D]/40 backdrop-blur-[1px]"
-                  aria-label="Close spotlight — click to return"
-                />
-                {/* clicking the dimmed blue anywhere closes */}
-                <motion.div
-                  key={`spot-wrap-${selected}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  onClick={() => setSelected(null)}
-                  className="absolute inset-0 z-30 flex items-center justify-center p-4 sm:p-6 cursor-pointer"
-                  aria-hidden
-                >
-                  <motion.div
-                    layoutId={`photo-${selected}`}
-                    onClick={(e) => e.stopPropagation()}
-                    transition={{ type: 'spring', stiffness: 380, damping: 32, mass: 0.9 }}
-                    className="relative cursor-default overflow-hidden rounded-2xl shadow-[0_28px_80px_rgba(0,0,0,0.55)]"
-                    style={{ width: 'min(88vw, 640px)' }}
-                  >
-                    {/* image is object-contain so full frame always visible — no black border, no thick frame */}
-                    <img
-                      src={photos[selected].src}
-                      alt={photos[selected].alt}
-                      className="block h-auto w-full max-h-[68vh] object-contain"
-                      draggable={false}
-                    />
-                    <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-white/10 bg-gradient-to-t from-black/40 via-transparent to-black/10" />
-                    <span className="pointer-events-none absolute left-5 top-4 font-serif text-[clamp(32px,9vw,84px)] leading-none text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.7)]">
-                      {String(selected + 1).padStart(2, '0')}
-                    </span>
-                    <span className="pointer-events-none absolute bottom-5 left-5 font-serif text-[clamp(18px,3vw,30px)] tracking-wide text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)]">
-                      {photos[selected].title}
-                    </span>
-                    <span className="pointer-events-none absolute bottom-5 right-5 rounded-full border border-white/20 bg-black/40 px-3 py-1 font-mono text-xs tracking-wide text-white/90 backdrop-blur">
-                      {photos[selected].alt}
-                    </span>
-                    <button
-                      onClick={() => setSelected(null)}
-                      className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur hover:bg-white hover:text-black transition-colors"
-                      aria-label="Close"
-                    >
-                      ✕
-                    </button>
-                  </motion.div>
-                </motion.div>
-                <motion.div
-                  key={`spot-hint-${selected}`}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  transition={{ delay: 0.25, duration: 0.3 }}
-                  className="pointer-events-none absolute bottom-4 left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/15 bg-black/30 px-3 py-1 font-mono text-[0.68rem] tracking-wide text-white/75 backdrop-blur"
-                >
-                  ← → navigate · click outside or ✕ to return
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-
-          <div className="pointer-events-none absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 sm:hidden">
-            {photos.map((_, i) => (
-              <span key={i} className={`h-1 rounded-full transition-all ${i === active ? 'w-4 bg-[#C89B3C]' : 'w-1 bg-white/25'}`} />
-            ))}
-          </div>
-          <div className="pointer-events-none absolute bottom-4 left-4 hidden sm:block font-mono text-[0.62rem] tracking-wide text-[#F3E8D0]/50">
-            drag · scroll · arrows · tap — {selected !== null ? `${String(selected + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')} · spotlight` : `${String(active + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}`}
-          </div>
-          <div className="pointer-events-none absolute bottom-4 right-4 hidden sm:flex items-center gap-1.5 font-mono text-[0.62rem] tracking-wide text-[#F3E8D0]/40">
-            <span className="hidden lg:inline">hover frame then use ← →</span>
-            <span className="inline-flex h-5 items-center rounded border border-white/15 px-1.5">←</span>
-            <span className="inline-flex h-5 items-center rounded border border-white/15 px-1.5">→</span>
-          </div>
-        </div>
-
-        <div className="mt-4 flex justify-center gap-2 sm:hidden">
-          <button
-            onClick={() => (selected !== null ? setSelected((s) => Math.max(0, (s ?? 0) - 1)) : smoothTo(targetRef.current - 100 / n))}
-            className="rounded-full border border-[rgba(200,155,60,0.22)] bg-white px-4 py-2 font-mono text-xs text-[#0F1F3D]"
-          >
-            ← Prev
-          </button>
-          <button
-            onClick={() => (selected !== null ? setSelected((s) => Math.min(n - 1, (s ?? 0) + 1)) : smoothTo(targetRef.current + 100 / n))}
-            className="rounded-full bg-[#0F1F3D] px-4 py-2 font-mono text-xs text-[#FAF7F0]"
-          >
-            Next →
-          </button>
-          {selected !== null && (
-            <button onClick={() => setSelected(null)} className="rounded-full border border-[#0F1F3D] px-4 py-2 font-mono text-xs">
-              Close
-            </button>
           )}
+          {grid.map((item) => (
+            <div
+              key={item.id}
+              data-key={item.id}
+              className="absolute top-0 left-0 p-[6px] will-change-transform"
+              style={{ width: item.w, height: item.h }}
+            >
+              <div
+                data-masonry-card
+                className="group relative h-full w-full overflow-hidden rounded-xl border border-[rgba(200,155,60,0.12)] bg-[#0F1F3D] shadow-[0_8px_24px_rgba(15,31,61,0.12)] cursor-pointer will-change-transform transition-[border-color,box-shadow] duration-300 hover:border-[rgba(200,155,60,0.28)] hover:shadow-[0_14px_36px_rgba(15,31,61,0.18)]"
+                onClick={() => setSelected(item)}
+                onKeyDown={(e) => e.key === 'Enter' && setSelected(item)}
+                tabIndex={0}
+                role="button"
+                aria-label={`View ${item.title}: ${item.alt}`}
+              >
+                {/* true <img> with object-cover — preserves portrait, allows slight crop but never landscape-forces portrait source */}
+                <img
+                  src={item.img}
+                  alt={item.alt}
+                  loading="lazy"
+                  draggable={false}
+                  className="h-full w-full object-cover object-center"
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/45 opacity-80 group-hover:opacity-100 transition-opacity" />
+                <span className="pointer-events-none absolute left-3 top-2 font-serif text-[clamp(18px,3vw,26px)] leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
+                  {item.id}
+                </span>
+                <span className="pointer-events-none absolute bottom-2 left-3 right-3 font-mono text-[0.58rem] tracking-wide text-white/88 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] line-clamp-1">
+                  {item.alt}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
+
+        <p className="mt-4 text-center font-mono text-[0.68rem] tracking-wide text-[#756F65]/80">
+          Scroll slowly — frames rise as they enter view · {items.length} frames A–O
+        </p>
 
         <div className="relative mt-10 flex flex-col items-center text-center">
           <span className="font-serif text-[4.5rem] leading-none text-[#C89B3C] opacity-25 select-none">“</span>
-          <p className="-mt-6 max-w-[640px] font-serif text-[clamp(1.15rem,2.2vw,1.55rem)] italic leading-[1.5] text-[#0F1F3D]">Photography is not just a hobby — it's how I see the world.</p>
+          <p className="-mt-6 max-w-[640px] font-serif text-[clamp(1.15rem,2.2vw,1.55rem)] italic leading-[1.5] text-[#0F1F3D]">
+            Photography is not just a hobby — it&apos;s how I see the world.
+          </p>
           <span className="mt-3 font-mono text-[0.72rem] tracking-[0.14em] text-[#756F65]">— ADITYA DIXIT</span>
         </div>
       </div>
+
+      {selected && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6 bg-[#0F1F3D]/70 backdrop-blur-[2px]"
+          onClick={() => setSelected(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${selected.title}: ${selected.alt}`}
+        >
+          <div
+            className="relative max-h-[86vh] w-full max-w-[720px] overflow-hidden rounded-2xl bg-black shadow-[0_28px_80px_rgba(0,0,0,0.55)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img src={selected.img} alt={selected.alt} className="block h-auto max-h-[72vh] w-full object-contain" draggable={false} />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent px-5 py-4">
+              <span className="font-serif text-2xl text-white">{selected.id}</span>
+              <span className="ml-3 font-mono text-xs tracking-wide text-white/80">{selected.alt}</span>
+            </div>
+            <button
+              onClick={() => setSelected(null)}
+              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/45 text-white backdrop-blur hover:bg-white hover:text-black transition-colors"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
