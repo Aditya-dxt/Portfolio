@@ -97,12 +97,12 @@ export function SportsCertificatesEditorial() {
           ))}
         </div>
 
-        <div className="sports-grid mt-8 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+        <div className="sports-grid mt-8 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-stretch">
           {preview.map((c) => (
             <button
               key={c.image}
               onClick={() => setActive(c.image)}
-              className="sports-frame group relative flex flex-col text-left overflow-hidden rounded-[18px] bg-[#FAF7F0] border border-[rgba(200,155,60,0.18)] shadow-[0_16px_32px_rgba(0,0,0,0.22)] hover:shadow-[0_20px_44px_rgba(0,0,0,0.28)] transition-all"
+              className="sports-frame group relative flex flex-col h-full text-left overflow-hidden rounded-[18px] bg-[#FAF7F0] border border-[rgba(200,155,60,0.18)] shadow-[0_16px_32px_rgba(0,0,0,0.22)] hover:shadow-[0_20px_44px_rgba(0,0,0,0.28)] transition-all"
               
             >
               <div className="p-2 sm:p-2.5">
@@ -128,7 +128,7 @@ export function SportsCertificatesEditorial() {
           <button
             type="button"
             onClick={() => { setShowAll(true); setTimeout(() => scrollToId('sports-archive'), 120); }}
-            className="sports-frame group relative overflow-hidden rounded-[18px] border border-[rgba(200,155,60,0.22)] bg-[#0F1F3D] text-left hover:bg-[#162E4D] transition-colors flex flex-col h-full"
+            className="sports-frame group relative overflow-hidden rounded-[18px] border border-[rgba(200,155,60,0.22)] bg-[#0F1F3D] text-left hover:bg-[#162E4D] transition-colors flex flex-col h-full min-h-0 self-stretch"
           >
             <div className="p-6 pb-3">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#C89B3C] text-[#0F1F3D] font-bold">◈</span>
