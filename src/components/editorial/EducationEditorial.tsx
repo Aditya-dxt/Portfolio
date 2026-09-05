@@ -208,6 +208,43 @@ export function EducationEditorial() {
             </div>
           </div>
 
+          {/* SPORTS ACHIEVEMENTS — field record (right after School) */}
+          <div data-edu-card className="relative overflow-hidden rounded-[24px] border border-[rgba(200,155,60,0.16)] bg-[#FAF7F0] shadow-[0_16px_40px_rgba(0,0,0,0.18)]">
+            <div className="h-[3px] w-full bg-gradient-to-r from-[#7A263A] via-[#C89B3C] to-[#0F1F3D] opacity-90" />
+            <div className="px-6 sm:px-7 lg:px-8 py-6">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-[#7A263A] text-white text-[0.75rem]">🏀</span>
+                    <span className="font-mono text-[0.66rem] tracking-[0.16em] text-[#7A263A]">FIELD RECORD · SPORTS & LEADERSHIP</span>
+                  </div>
+                  <h3 className="mt-2 font-serif text-[1.45rem] sm:text-[1.75rem] font-extrabold leading-none tracking-tight text-[#0F1F3D]">Sports Achievements <span className="font-normal italic text-[#7A263A] text-[1.1rem]">— 2018-24</span></h3>
+                  <p className="mt-1.5 font-mono text-[0.70rem] tracking-wide text-[#6B6B6B]">Courts, cohorts & captaincy — no DSA, just field.</p>
+                </div>
+                <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#0F1F3D] px-3 py-1.5 font-mono text-[0.66rem] tracking-wide text-[#C89B3C]">ST. THOMAS <span className="h-1 w-1 rounded-full bg-[#C89B3C]" /> STATE REP</span>
+              </div>
+
+              {/* field lines decoration */}
+              <div className="pointer-events-none absolute left-1/2 top-[68px] hidden h-px w-[92%] -translate-x-1/2 bg-[repeating-linear-gradient(90deg,rgba(122,38,58,0.18)_0_8px,transparent_8px_16px)] lg:block" />
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {(portfolio as any).sportsAchievements.map((s: any, i: number) => (
+                  <div key={s.title + i} className="group relative overflow-hidden rounded-2xl border border-[rgba(15,31,61,0.08)] bg-white p-4 sm:p-5 hover:border-[#C89B3C]/25 hover:shadow-[0_10px_24px_rgba(15,31,61,0.06)] transition-all">
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex h-7 min-w-[56px] items-center justify-center rounded-full px-2.5 font-mono text-[0.60rem] font-bold tracking-[0.08em] ${i === 0 ? 'bg-[#0F1F3D] text-[#C89B3C]' : i === 1 ? 'bg-[#7A263A] text-white' : 'bg-[#FAF7F0] border border-[rgba(15,31,61,0.08)] text-[#0F1F3D]'}`}>{s.badge}</span>
+                      <span className="font-mono text-[0.64rem] tracking-wide text-[#7A263A]">{s.period}</span>
+                      <span className="ml-auto font-serif text-[1.9rem] font-black leading-none text-[#0F1F3D]/[0.06] select-none">0{i + 1}</span>
+                    </div>
+                    <h4 className="mt-2 font-serif text-[0.98rem] font-extrabold leading-tight text-[#0F1F3D]">{s.title}</h4>
+                    <p className="font-mono text-[0.68rem] tracking-wide text-[#756F65]">{s.org}</p>
+                    <p className="mt-2 text-[0.82rem] leading-relaxed text-[#4A4A4A]">{s.desc}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-3 font-mono text-[0.64rem] tracking-wide text-[#8A8A8A]">Elected twice · State representation · 13-year Thomasians arc — separate from tech achievements.</p>
+            </div>
+          </div>
+
           {/* COLLEGE — tape deck */}
           <div data-edu-card className="relative overflow-hidden rounded-[24px] border border-[rgba(200,155,60,0.14)] bg-white shadow-[0_16px_40px_rgba(0,0,0,0.22),0_0_0_1px_rgba(200,155,60,0.06)]">
             <span data-parallax className="pointer-events-none absolute -top-6 right-6 hidden select-none font-serif text-[7.5rem] font-extrabold leading-none tracking-tight text-[#0F1F3D]/[0.04] lg:block">2024—28</span>

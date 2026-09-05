@@ -155,6 +155,38 @@ export const portfolio = {
     'Open-source & hackathons — 4× national team leader, SIH 2026 ISRO track',
   ],
 
+  // Sports-only achievements — shown right after School education (no DSA/hackerrank here)
+  sportsAchievements: [
+    {
+      title: 'State-level Basketball Player',
+      org: 'Uttar Pradesh State Team',
+      period: '2023 — 24',
+      desc: 'Represented Uttar Pradesh at state-level championship — selected through district & zonal trials.',
+      badge: 'STATE',
+    },
+    {
+      title: 'Sports Captain',
+      org: 'St. Thomas School, Kanpur',
+      period: '2023 — 24',
+      desc: 'Elected Sports Captain — led inter-house & inter-school fixtures, athletics meets & discipline on field.',
+      badge: 'CAPTAIN',
+    },
+    {
+      title: 'House Captain',
+      org: 'St. Thomas School, Kanpur',
+      period: '2022 — 23',
+      desc: 'Elected House Captain — led 400+ cohort through parades, house championships & team management.',
+      badge: 'LEADER',
+    },
+    {
+      title: 'Inter-school Representation',
+      org: 'St. Thomas · Athletics & Team Sports',
+      period: '2018 — 2024',
+      desc: 'Year-on-year representation in basketball & athletics — district, inter-school & annual meets.',
+      badge: '2018-24',
+    },
+  ],
+
   certifications: [
     { name: 'MERN Full-Stack Development', issuer: 'Tryst, IIT Delhi', image: '/images/certifications/React-JS.png', year: '2024' },
     { name: 'Agentic AI — Foundations Associate', issuer: 'Oracle', image: '/images/certifications/Introduction to GenAI concepts.png', year: '2025' },
