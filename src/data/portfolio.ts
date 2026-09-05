@@ -188,15 +188,15 @@ export const portfolio = {
   ],
 
   sportsCertificates: [
-    { name: 'Sports Certificate — 01', image: '/images/sports/1.png', label: '01' },
-    { name: 'Sports Certificate — 02', image: '/images/sports/2.png', label: '02' },
-    { name: 'Sports Certificate — 03', image: '/images/sports/3.png', label: '03' },
-    { name: 'Sports Certificate — 04', image: '/images/sports/4.png', label: '04' },
-    { name: 'Sports Certificate — 05', image: '/images/sports/5.png', label: '05' },
-    { name: 'Sports Certificate — 06', image: '/images/sports/6.png', label: '06' },
-    { name: 'Sports Certificate — 07', image: '/images/sports/7.png', label: '07' },
-    { name: 'Sports Certificate — 08', image: '/images/sports/8.png', label: '08' },
-    { name: 'Sports Certificate — 09', image: '/images/sports/9.png', label: '09' },
+    { name: 'Sports Certificate — 01', image: '/images/sports/1.jpg', label: '01' },
+    { name: 'Sports Certificate — 02', image: '/images/sports/2.jpg', label: '02' },
+    { name: 'Sports Certificate — 03', image: '/images/sports/3.jpg', label: '03' },
+    { name: 'Sports Certificate — 04', image: '/images/sports/4.jpg', label: '04' },
+    { name: 'Sports Certificate — 05', image: '/images/sports/5.jpg', label: '05' },
+    { name: 'Sports Certificate — 06', image: '/images/sports/6.jpg', label: '06' },
+    { name: 'Sports Certificate — 07', image: '/images/sports/7.jpg', label: '07' },
+    { name: 'Sports Certificate — 08', image: '/images/sports/8.jpg', label: '08' },
+    { name: 'Sports Certificate — 09', image: '/images/sports/9.jpg', label: '09' },
   ],
 
   certifications: [

@@ -128,7 +128,7 @@ export function SportsCertificatesEditorial() {
           <button
             type="button"
             onClick={() => { setShowAll(true); setTimeout(() => scrollToId('sports-archive'), 120); }}
-            className="sports-frame group relative overflow-hidden rounded-[18px] border border-[rgba(200,155,60,0.22)] bg-[#0F1F3D] p-6 text-left hover:bg-[#162E4D] transition-colors flex flex-col justify-between min-h-[240px]"
+            className="sports-frame group relative overflow-hidden rounded-[18px] border border-[rgba(200,155,60,0.22)] bg-[#0F1F3D] p-6 text-left hover:bg-[#162E4D] transition-colors flex flex-col justify-between h-full"
           >
             <div>
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#C89B3C] text-[#0F1F3D] font-bold">◈</span>
