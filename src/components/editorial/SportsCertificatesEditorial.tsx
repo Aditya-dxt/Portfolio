@@ -14,7 +14,13 @@ export function SportsCertificatesEditorial() {
 
   useEffect(() => {
     const root = ref.current;
-    if (!root || isReducedMotion() || !ready) return;
+    if (!root || isReducedMotion()) return;
+    if (!ready) {
+      const id = window.setTimeout(() => {
+        root.querySelectorAll<HTMLElement>('.sports-frame, .sports-hero').forEach(el => (el.style.opacity = '1'));
+      }, 1800);
+      return () => window.clearTimeout(id);
+    }
     const ctx = gsap.context(() => {
       gsap.from(root.querySelectorAll<HTMLElement>('.sports-frame'), {
         y: 32, autoAlpha: 0, duration: 0.65, stagger: 0.08, ease: 'power3.out',
@@ -36,23 +42,6 @@ export function SportsCertificatesEditorial() {
     }, root);
     return () => ctx.revert();
   }, [ready]);
-
-  // drag for rail on mobile
-  const drag = useRef({ down: false, start: 0, left: 0 });
-  const onDown = (e: React.PointerEvent) => {
-    const el = railRef.current;
-    if (!el) return;
-    drag.current.down = true;
-    drag.current.start = e.clientX;
-    drag.current.left = el.scrollLeft;
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-  };
-  const onMove = (e: React.PointerEvent) => {
-    const el = railRef.current;
-    if (!el || !drag.current.down) return;
-    el.scrollLeft = drag.current.left - (e.clientX - drag.current.start);
-  };
-  const onUp = () => { drag.current.down = false; };
 
   return (
     <section ref={ref} id="sports-certificates" className="relative overflow-hidden bg-[#7A263A] text-[#FAF7F0] border-t border-[rgba(200,155,60,0.18)]">
@@ -104,11 +93,7 @@ export function SportsCertificatesEditorial() {
         {/* mobile rail + desktop grid */}
         <div
           ref={railRef}
-          onPointerDown={onDown}
-          onPointerMove={onMove}
-          onPointerUp={onUp}
-          onPointerLeave={onUp}
-          className="sports-grid mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr sm:overflow-visible overflow-x-auto sm:overflow-x-visible flex sm:grid flex-nowrap sm:flex-wrap snap-x snap-mandatory sm:snap-none pb-2 sm:pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing select-none"
+          className="sports-grid mt-8 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr"
         >
           {certs.map((c, i) => (
             <button

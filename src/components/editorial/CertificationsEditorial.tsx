@@ -18,7 +18,13 @@ export function CertificationsEditorial() {
 
   useEffect(() => {
     const root = ref.current;
-    if (!root || isReducedMotion() || !ready) return;
+    if (!root || isReducedMotion()) return;
+    if (!ready) {
+      const id = window.setTimeout(() => {
+        root.querySelectorAll<HTMLElement>('.cert-card').forEach(el => (el.style.opacity = '1'));
+      }, 1800);
+      return () => window.clearTimeout(id);
+    }
     const ctx = gsap.context(() => {
       gsap.from(root.querySelectorAll<HTMLElement>('.cert-card'), {
         y: 22, autoAlpha: 0, duration: 0.55, stagger: 0.07, ease: 'power3.out',
