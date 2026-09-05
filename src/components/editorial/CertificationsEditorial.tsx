@@ -37,7 +37,7 @@ export function CertificationsEditorial() {
   const certPreview = certs.slice(0, CERT_MAIN);
 
   return (
-    <section ref={ref} id="certifications" className="bg-white text-[#0F1F3D] border-t border-[#C89B3C]/10">
+    <section ref={ref} id="certifications" className="bg-[#FAF7F0] text-[#0F1F3D] border-t border-[#C89B3C]/10">
       <div className="max-w-[1400px] mx-auto px-[4vw] py-[72px] sm:py-[88px]">
         <div className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-[#0F1F3D] pb-4 mb-8">
           <div>
