@@ -23,10 +23,13 @@ export function SportsCertificatesEditorial() {
     if (!root || isReducedMotion()) return;
     if (!ready) {
       const id = window.setTimeout(() => {
-        root.querySelectorAll<HTMLElement>('.sports-frame, .sports-hero').forEach(el => (el.style.opacity = '1'));
-      }, 1800);
+        root.querySelectorAll<HTMLElement>('.sports-frame, .sports-hero').forEach(el => { el.style.opacity = '1'; (el as HTMLElement).style.visibility = 'visible'; });
+      }, 1200);
       return () => window.clearTimeout(id);
     }
+    const safety = window.setTimeout(() => {
+      root.querySelectorAll<HTMLElement>('.sports-frame, .sports-hero, .cert-card').forEach(el => gsap.set(el, { autoAlpha: 1 }));
+    }, 2500);
     const ctx = gsap.context(() => {
       gsap.from(root.querySelectorAll<HTMLElement>('.sports-frame'), {
         y: 32, autoAlpha: 0, duration: 0.65, stagger: 0.08, ease: 'power3.out',
@@ -44,7 +47,7 @@ export function SportsCertificatesEditorial() {
         y: -6, duration: 1.6, repeat: -1, yoyo: true, ease: 'sine.inOut'
       });
     }, root);
-    return () => ctx.revert();
+    return () => { window.clearTimeout(safety); ctx.revert(); };
   }, [ready]);
 
   return (

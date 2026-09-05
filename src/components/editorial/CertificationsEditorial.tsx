@@ -21,17 +21,20 @@ export function CertificationsEditorial() {
     if (!root || isReducedMotion()) return;
     if (!ready) {
       const id = window.setTimeout(() => {
-        root.querySelectorAll<HTMLElement>('.cert-card').forEach(el => (el.style.opacity = '1'));
-      }, 1800);
+        root.querySelectorAll<HTMLElement>('.cert-card').forEach(el => { el.style.opacity = '1'; (el as HTMLElement).style.visibility = 'visible'; });
+      }, 1200);
       return () => window.clearTimeout(id);
     }
+    const safety = window.setTimeout(() => {
+      root.querySelectorAll<HTMLElement>('.sports-frame, .sports-hero, .cert-card').forEach(el => gsap.set(el, { autoAlpha: 1 }));
+    }, 2500);
     const ctx = gsap.context(() => {
       gsap.from(root.querySelectorAll<HTMLElement>('.cert-card'), {
         y: 22, autoAlpha: 0, duration: 0.55, stagger: 0.07, ease: 'power3.out',
         scrollTrigger: { trigger: root, start: 'top 84%' }
       });
     }, root);
-    return () => ctx.revert();
+    return () => { window.clearTimeout(safety); ctx.revert(); };
   }, [ready]);
 
   const certPreview = certs.slice(0, CERT_MAIN);
