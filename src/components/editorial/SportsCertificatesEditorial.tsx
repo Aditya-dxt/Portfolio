@@ -128,14 +128,14 @@ export function SportsCertificatesEditorial() {
           <button
             type="button"
             onClick={() => { setShowAll(true); setTimeout(() => scrollToId('sports-archive'), 120); }}
-            className="sports-frame group relative overflow-hidden rounded-[18px] border border-[rgba(200,155,60,0.22)] bg-[#0F1F3D] p-6 text-left hover:bg-[#162E4D] transition-colors flex flex-col justify-between h-full"
+            className="sports-frame group relative overflow-hidden rounded-[18px] border border-[rgba(200,155,60,0.22)] bg-[#0F1F3D] text-left hover:bg-[#162E4D] transition-colors flex flex-col h-full"
           >
-            <div>
+            <div className="p-6 pb-3">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#C89B3C] text-[#0F1F3D] font-bold">◈</span>
               <h4 className="mt-3 font-serif text-[1.18rem] font-extrabold leading-tight text-[#FAF7F0]">Explore all 9 frames</h4>
               <p className="mt-1 font-mono text-[0.72rem] leading-relaxed text-[#F3E8D0]/70">St. Thomas · State · District · Zonal — tap to open full stadium vault</p>
             </div>
-            <div className="mt-4">
+            <div className="mt-auto p-6 pt-3">
               <div className="flex -space-x-2">
                 {certs.slice(0, 4).map(c => (
                   <span key={c.image} className="h-8 w-8 rounded-full border-2 border-[#0F1F3D] bg-[#FAF7F0] overflow-hidden grid place-items-center">
@@ -146,7 +146,6 @@ export function SportsCertificatesEditorial() {
               </div>
               <span className="mt-3 inline-flex items-center gap-2 font-mono text-[0.72rem] font-bold tracking-wide text-[#C89B3C]">Open vault <span className="transition-transform group-hover:translate-x-1">→</span></span>
             </div>
-            <span aria-hidden className="pointer-events-none absolute -right-6 -bottom-6 h-28 w-28 rounded-full border border-[#C89B3C]/15" />
           </button>
         </div>
 

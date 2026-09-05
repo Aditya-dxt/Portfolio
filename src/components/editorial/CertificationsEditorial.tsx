@@ -78,14 +78,14 @@ export function CertificationsEditorial() {
           <button
             type="button"
             onClick={() => { setShowCert(true); setTimeout(() => scrollToId('certifications-archive'), 120); }}
-            className="cert-card group relative overflow-hidden rounded-[18px] border border-[#C89B3C]/20 bg-[#0F1F3D] p-6 text-left hover:bg-[#162E4D] transition-colors flex flex-col justify-between min-h-[220px]"
+            className="cert-card group relative overflow-hidden rounded-[18px] border border-[#C89B3C]/20 bg-[#0F1F3D] text-left hover:bg-[#162E4D] transition-colors flex flex-col h-full"
           >
-            <div>
+            <div className="p-6 pb-3">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#C89B3C] text-[#0F1F3D] font-bold">◈</span>
               <h4 className="mt-3 font-serif text-[1.18rem] font-extrabold leading-tight text-[#FAF7F0]">Explore complete vault</h4>
               <p className="mt-1 font-mono text-[0.72rem] leading-relaxed text-[#F3E8D0]/70">{certs.length} credentials · Oracle, AWS, JP Morgan, Microsoft & more</p>
             </div>
-            <div className="mt-4">
+            <div className="mt-auto p-6 pt-3">
               <div className="flex -space-x-2">
                 {certs.slice(0, 4).map((c: any) => (
                   <span key={c.name} className="h-8 w-8 rounded-full border-2 border-[#0F1F3D] bg-[#FAF7F0] grid place-items-center font-mono text-[0.58rem] font-bold text-[#0F1F3D]">{c.issuer.slice(0, 2).toUpperCase()}</span>
