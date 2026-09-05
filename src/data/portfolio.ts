@@ -150,14 +150,21 @@ export const portfolio = {
     'State-level Basketball Player — represented Uttar Pradesh',
     'E-Summit IIT Kanpur 2K24 & 2K25; Bitathon & TATA Crucible Campus Quiz 2025',
     '3-Day AI Bootcamp · AWS Summit Champion (AWS Summit India 2026)',
+    'Shipped 7+ production apps — MERN + AI (Stripe, RAG, Socket.IO) on Vercel/Render',
+    'House Captain ’22-23 & Sports Captain ’23-24 — led 400+ student cohorts at St. Thomas',
+    'Open-source & hackathons — 4× national team leader, SIH 2026 ISRO track',
   ],
 
   certifications: [
-    { name: 'MERN Full-Stack Development', issuer: 'Tryst, IIT Delhi' },
-    { name: 'Agentic AI Certified Foundations Associate', issuer: 'Oracle' },
-    { name: 'AWS Summit Champion', issuer: 'AWS Summit India 2026' },
-    { name: 'Software Engineering Job Simulation', issuer: 'JP Morgan & Deloitte' },
-    { name: 'Introduction to Generative AI and Agents', issuer: 'Microsoft Learn' },
+    { name: 'MERN Full-Stack Development', issuer: 'Tryst, IIT Delhi', image: '/images/certifications/React-JS.png', year: '2024' },
+    { name: 'Agentic AI — Foundations Associate', issuer: 'Oracle', image: '/images/certifications/Introduction to GenAI concepts.png', year: '2025' },
+    { name: 'AWS Summit Champion', issuer: 'AWS Summit India 2026', image: '/images/certifications/AWS Cloud Essentials.png', year: '2026' },
+    { name: 'Software Engineering Job Simulation', issuer: 'JP Morgan', image: '/images/certifications/JP Morgan Software Engineering Job Simulation.png', year: '2025' },
+    { name: 'Introduction to Generative AI', issuer: 'Microsoft Learn', image: '/images/certifications/Work with GenAI models in Azure Machine learning.png', year: '2025' },
+    { name: 'Deloitte Technology Job Simulation', issuer: 'Deloitte', image: '/images/certifications/Deloitte Technology Job Simulation.png', year: '2025' },
+    { name: 'React Certification', issuer: 'HackerRank', image: '/images/certifications/React-JS.png', year: '2024' },
+    { name: 'CCNA Fundamentals', issuer: 'Cisco', image: '/images/certifications/CCNA.png', year: '2024' },
+    { name: 'TCS Career Edge — Young Professional', issuer: 'TCS iON', image: '/images/certifications/TCS-Career Edge.png', year: '2024' },
   ],
 
   // Featured projects — 3 editorial cards (dark) + 4 secondary
