@@ -23,26 +23,73 @@ export function ContactEditorial() {
   const submitRef = useMagnetic<HTMLButtonElement>(10);
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
     const fd = new FormData(e.currentTarget);
     const name = String(fd.get('name') || '').trim();
     const email = String(fd.get('email') || '').trim();
     const subject = String(fd.get('subject') || 'Portfolio inquiry').trim();
     const message = String(fd.get('message') || '').trim();
-    if (!name || !email || !message) return;
+    const gotcha = String(fd.get('_gotcha') || '').trim();
+    if (!name || !email || !message) {
+      setError('Please fill name, email and message.');
+      return;
+    }
+    if (message.length < 10) {
+      setError('Message must be at least 10 characters.');
+      return;
+    }
     setSending(true);
-    const mailSubject = encodeURIComponent(`${subject} — from ${name}`);
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}\n\n— sent via aditya-dixit.vercel.app`);
-    // small delay for polish then open mail client + show success inline
-    setTimeout(() => {
-      window.location.href = `mailto:${portfolio.email}?subject=${mailSubject}&body=${body}`;
-      setSending(false);
+    try {
+      // Primary: Vercel serverless /api/contact (works in prod). In dev Vite has no api route, so fallback to FormSubmit direct.
+      let res: Response | null = null;
+      let data: any = null;
+      try {
+        res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, subject, message, _gotcha: gotcha }),
+        });
+        data = await res.json().catch(() => ({}));
+      } catch {
+        res = null;
+      }
+
+      // fallback for local dev where /api/contact 404s — post directly to FormSubmit ajax
+      if (!res || res.status === 404) {
+        const r2 = await fetch('https://formsubmit.co/ajax/adityadxt1910@gmail.com', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            name,
+            email,
+            subject: `${subject} — from ${name}`,
+            message: `From: ${name} <${email}>\nSubject: ${subject}\n\n${message}\n\n— sent via aditya-dixit.vercel.app`,
+            _subject: `${subject} — from ${name} (portfolio)`,
+            _template: 'table',
+            _captcha: 'false',
+          }),
+        });
+        const d2: any = await r2.json().catch(() => ({}));
+        if (!r2.ok) throw new Error(d2?.message || 'Failed to send — please email adityadxt1910@gmail.com directly');
+        setSent(true);
+        (e.target as HTMLFormElement).reset();
+        setTimeout(() => setSent(false), 6000);
+        return;
+      }
+
+      if (!res.ok || !data?.ok) throw new Error(data?.error || 'Failed to send — please try again');
       setSent(true);
       (e.target as HTMLFormElement).reset();
-      setTimeout(() => setSent(false), 4000);
-    }, 450);
+      setTimeout(() => setSent(false), 6000);
+    } catch (err: any) {
+      setError(err?.message || 'Something went wrong. Email me at adityadxt1910@gmail.com');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -138,7 +185,7 @@ export function ContactEditorial() {
 
           {/* RIGHT — form */}
           <div className="reveal lg:sticky lg:top-[84px]" style={{ transitionDelay: '0.08s' }}>
-            <form onSubmit={onSubmit} className="rounded-[20px] border border-[rgba(200,155,60,0.14)] bg-[#162E4D] p-6 sm:p-7 shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
+            <form onSubmit={onSubmit} noValidate className="rounded-[20px] border border-[rgba(200,155,60,0.14)] bg-[#162E4D] p-6 sm:p-7 shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3 className="font-serif text-[1.45rem] font-bold leading-none text-[#FAF7F0]">Send a message</h3>
@@ -171,14 +218,20 @@ export function ContactEditorial() {
                 <textarea name="message" required rows={5} minLength={10} placeholder="Tell me about your project, timeline and what success looks like..." className="min-h-[128px] resize-none rounded-xl border border-[rgba(200,155,60,0.14)] bg-[#0F1F3D] px-3.5 py-3 font-sans text-[0.9rem] leading-relaxed text-[#FAF7F0] placeholder:text-[#756F65]/80 focus:border-[#C89B3C] focus:outline-none focus:ring-2 focus:ring-[rgba(200,155,60,0.18)] transition" />
               </label>
 
+              {/* honeypot — hidden from humans */}
+              <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+
               <p className="mt-3 font-mono text-[0.66rem] leading-relaxed text-[#F3E8D0]/55">By sending, you agree I can reply via email. No spam — just a direct reply from me.</p>
 
               <button ref={submitRef} type="submit" disabled={sending} className="magnetic mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#C89B3C] px-6 py-3.5 font-sans text-[0.92rem] font-bold tracking-wide text-[#0F1F3D] hover:bg-[#E8DCC8] active:bg-[#D0C0A0] disabled:opacity-70 disabled:cursor-not-allowed will-change-transform transition-colors">
-                {sending ? 'Opening mail app…' : 'Send message →'}
+                {sending ? 'Sending…' : 'Send message →'}
               </button>
 
+              {error && (
+                <div className="mt-3 rounded-xl border border-[rgba(255,80,80,0.22)] bg-[rgba(255,80,80,0.10)] px-3.5 py-3 font-sans text-[0.84rem] text-[#FFB4B4]">{error}</div>
+              )}
               {sent && (
-                <div className="mt-3 rounded-xl border border-[rgba(122,255,122,0.18)] bg-[rgba(122,255,122,0.08)] px-3.5 py-3 font-sans text-[0.84rem] text-[#B6F5B6]">Message handed to your mail app — I’ll reply within 24h. If nothing opened, email me directly at {portfolio.email}.</div>
+                <div className="mt-3 rounded-xl border border-[rgba(122,255,122,0.18)] bg-[rgba(122,255,122,0.08)] px-3.5 py-3 font-sans text-[0.84rem] text-[#B6F5B6]">Sent ✓ — check your inbox for confirmation. I’ll reply within 24h at {portfolio.email}. If you don’t see it, email me directly.</div>
               )}
 
               <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[rgba(200,155,60,0.10)] pt-4">
