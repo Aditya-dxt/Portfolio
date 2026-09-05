@@ -187,6 +187,18 @@ export const portfolio = {
     },
   ],
 
+  sportsCertificates: [
+    { name: 'Sports Certificate — 01', image: '/images/sports/1.jpg', label: '01' },
+    { name: 'Sports Certificate — 02', image: '/images/sports/2.jpg', label: '02' },
+    { name: 'Sports Certificate — 03', image: '/images/sports/3.jpg', label: '03' },
+    { name: 'Sports Certificate — 04', image: '/images/sports/4.jpg', label: '04' },
+    { name: 'Sports Certificate — 05', image: '/images/sports/5.jpg', label: '05' },
+    { name: 'Sports Certificate — 06', image: '/images/sports/6.jpg', label: '06' },
+    { name: 'Sports Certificate — 07', image: '/images/sports/7.jpg', label: '07' },
+    { name: 'Sports Certificate — 08', image: '/images/sports/8.jpg', label: '08' },
+    { name: 'Sports Certificate — 09', image: '/images/sports/9.jpg', label: '09' },
+  ],
+
   certifications: [
     { name: 'MERN Full-Stack Development', issuer: 'Tryst, IIT Delhi', image: '/images/certifications/React-JS.png', year: '2024' },
     { name: 'Agentic AI — Foundations Associate', issuer: 'Oracle', image: '/images/certifications/Introduction to GenAI concepts.png', year: '2025' },

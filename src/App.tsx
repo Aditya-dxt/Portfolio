@@ -10,6 +10,7 @@ import { ProjectsEditorial } from '@/components/editorial/ProjectsEditorial';
 import { ProcessSkills } from '@/components/editorial/ProcessSkills';
 import { EducationEditorial } from '@/components/editorial/EducationEditorial';
 import { ExperienceEditorial } from '@/components/editorial/ExperienceEditorial';
+import { SportsCertificatesEditorial } from '@/components/editorial/SportsCertificatesEditorial';
 import { CertificationsEditorial } from '@/components/editorial/CertificationsEditorial';
 import { HackathonsEditorial } from '@/components/editorial/HackathonsEditorial';
 import { PhotographyEditorial } from '@/components/editorial/PhotographyEditorial';
@@ -35,6 +36,7 @@ function EditorialShell() {
         <Suspense fallback={<SectionFallback />}><ProcessSkills /></Suspense>
         <Suspense fallback={<SectionFallback />}><EducationEditorial /></Suspense>
         <Suspense fallback={<SectionFallback />}><ExperienceEditorial /></Suspense>
+        <Suspense fallback={<SectionFallback />}><SportsCertificatesEditorial /></Suspense>
         <Suspense fallback={<SectionFallback />}><CertificationsEditorial /></Suspense>
         <Suspense fallback={<SectionFallback />}><HackathonsEditorial /></Suspense>
         <Suspense fallback={<SectionFallback />}><PhotographyEditorial /></Suspense>
