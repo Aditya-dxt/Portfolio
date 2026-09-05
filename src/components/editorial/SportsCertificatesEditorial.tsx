@@ -98,12 +98,12 @@ export function SportsCertificatesEditorial() {
         </div>
 
         <div className="sports-grid mt-8 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
-          {preview.map((c, i) => (
+          {preview.map((c) => (
             <button
               key={c.image}
               onClick={() => setActive(c.image)}
               className="sports-frame group relative flex flex-col text-left overflow-hidden rounded-[18px] bg-[#FAF7F0] border border-[rgba(200,155,60,0.18)] shadow-[0_16px_32px_rgba(0,0,0,0.22)] hover:shadow-[0_20px_44px_rgba(0,0,0,0.28)] transition-all"
-              style={{ transform: `rotate(${[-0.9, 0.7, -0.4, 0.5, -0.6][i % 5]}deg)` }}
+              
             >
               <div className="p-2 sm:p-2.5">
                 <div className="relative overflow-hidden rounded-[12px] bg-white border border-[rgba(15,31,61,0.08)] aspect-[4/3]">
