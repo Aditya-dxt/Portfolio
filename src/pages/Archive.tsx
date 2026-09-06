@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { portfolio } from '@/data/portfolio';
 import { NavbarEditorial } from '@/components/editorial/NavbarEditorial';
 
-type Filter = 'all' | 'sports' | 'certs' | 'hacks' | 'achievements';
+type Filter = 'all' | 'sports' | 'certs' | 'hacks' | 'achievements' | 'photo';
 
 export default function Archive() {
   const [filter, setFilter] = useState<Filter>('all');
@@ -19,7 +19,7 @@ export default function Archive() {
     window.scrollTo(0, 0);
     const hash = window.location.hash.replace('#', '');
     if (hash) {
-      const map: Record<string, Filter> = { sports: 'sports', certifications: 'certs', hackathons: 'hacks', achievements: 'achievements' };
+      const map: Record<string, Filter> = { sports: 'sports', certifications: 'certs', certs: 'certs', hackathons: 'hacks', hacks: 'hacks', achievements: 'achievements', photography: 'photo', photo: 'photo' };
       if (map[hash]) setFilter(map[hash]);
       setTimeout(() => {
         const el = document.getElementById(hash === 'sports' ? 'archive-sports' : hash === 'certs' || hash === 'certifications' ? 'archive-certs' : hash === 'hacks' || hash === 'hackathons' ? 'archive-hacks' : hash);
@@ -39,10 +39,10 @@ export default function Archive() {
           <div>
             <Link to="/" className="inline-flex items-center gap-2 rounded-full border border-[#C89B3C]/20 bg-white px-3.5 py-1.5 font-mono text-[0.70rem] font-bold tracking-wide text-[#0F1F3D] hover:border-[#C89B3C]/40 transition-colors">← Back to portfolio</Link>
             <h1 className="mt-4 font-serif text-[clamp(2rem,4.5vw,3.6rem)] font-extrabold leading-none tracking-tight">ARCHIVE <span className="italic font-normal text-[#7A263A]">— Vault</span></h1>
-            <p className="mt-2 max-w-[58rem] font-mono text-[0.72rem] tracking-wide text-[#756F65]">One page for everything: Sports certificates (9) + Tech certifications (29) + Hackathons led (4) + Achievements. Use Explore on the home page to land here — or filter below.</p>
+            <p className="mt-2 max-w-[58rem] font-mono text-[0.72rem] tracking-wide text-[#756F65]">One page for everything: Sports (9) + Certifications (29) + Hackathons (4) + Achievements + Photography (15). Use Explore on the home page to land here — or filter below.</p>
           </div>
           <div className="flex flex-wrap gap-2 self-end">
-            <span className="hidden sm:inline-flex rounded-full bg-[#0F1F3D] px-3 py-1.5 font-mono text-[0.66rem] tracking-wide text-[#FAF7F0]">9 SPORTS · 29 CERTS · 4 HACKS</span>
+            <span className="hidden sm:inline-flex rounded-full bg-[#0F1F3D] px-3 py-1.5 font-mono text-[0.66rem] tracking-wide text-[#FAF7F0]">9 SPORTS · 29 CERTS · 4 HACKS · 15 PHOTOS</span>
           </div>
         </div>
 
@@ -50,11 +50,12 @@ export default function Archive() {
         <div className="sticky top-[64px] z-20 -mx-[4vw] mt-6 border-y border-[#C89B3C]/12 bg-[#FAF7F0]/90 px-[4vw] py-3 backdrop-blur">
           <div className="flex flex-wrap gap-2">
             {([
-              ['all', 'All — 42'],
+              ['all', 'All — 57'],
               ['sports', `Sports — 9`],
               ['certs', `Certifications — ${certs.length}`],
               ['hacks', `Hackathons — ${hacks.length}`],
               ['achievements', `Achievements — ${achievements.length + sportsAchievements.length}`],
+              ['photo', 'Photography — 15'],
             ] as const).map(([k, label]) => (
               <button
                 key={k}
@@ -197,6 +198,32 @@ export default function Archive() {
                   </article>
                 ))}
               </div>
+            </div>
+          </section>
+        )}
+
+        {/* PHOTOGRAPHY */}
+        {show('photo') && (
+          <section id="archive-photo" className="mt-12 scroll-mt-[120px] mb-2">
+            <div className="rounded-[18px] border border-[#C89B3C]/15 bg-white p-5 sm:p-6">
+              <div className="flex flex-wrap items-end justify-between gap-3 border-b-2 border-[#0F1F3D] pb-4">
+                <div>
+                  <span className="font-mono text-[0.72rem] font-bold tracking-[0.14em] text-[#C89B3C]">05 / PHOTOGRAPHY</span>
+                  <h2 className="font-serif text-[1.7rem] font-extrabold leading-none">THROUGH MY LENS</h2>
+                  <p className="mt-1 font-mono text-[0.68rem] text-[#756F65]">15 frames A–O · masonry archive · includes L — Golden hour capture</p>
+                </div>
+                <Link to="/photography" className="rounded-full bg-[#0F1F3D] px-4 py-2 font-mono text-[0.70rem] font-bold tracking-wide text-[#FAF7F0] hover:bg-[#162E4D]">Open gallery →</Link>
+              </div>
+              <div className="mt-5 grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+                {['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O'].map(id => (
+                  <Link key={id} to="/photography" className="group relative overflow-hidden rounded-xl border border-[rgba(200,155,60,0.12)] bg-[#0F1F3D] aspect-[4/3] grid place-items-center hover:border-[#C89B3C]/30 transition-colors">
+                    <img src={`/images/photography/${id}.${id==='B'||id==='F'?'jpg':'jpeg'}`} alt={id} loading="lazy" className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-500" onError={(e)=>{(e.target as HTMLImageElement).style.display='none'}} />
+                    <span className="absolute left-2 top-2 font-serif text-[1.2rem] leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">{id}</span>
+                    <span className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                  </Link>
+                ))}
+              </div>
+              <p className="mt-3 text-center font-mono text-[0.66rem] text-[#756F65]">Tap any frame → full /photography masonry with lightbox</p>
             </div>
           </section>
         )}

@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 
 // React Bits Masonry — scroll-triggered + aspect-preserved portrait
@@ -21,6 +22,8 @@ const items: PhotoItem[] = [
   { id: 'N', img: '/images/photography/N.jpeg', height: 600, alt: 'Light trails', title: 'N' },
   { id: 'O', img: '/images/photography/O.jpeg', height: 700, alt: 'Quiet night', title: 'O' },
 ];
+// Preview: L replaced by Explore box same exact masonry slot (640h, same columns calculation)
+const previewItems: PhotoItem[] = items.map(it => it.id === 'L' ? { id: 'EXPLORE', img: '', height: 640, alt: 'Explore all photographs', title: 'EXPLORE' } : it);
 
 const useMedia = (queries: string[], values: number[], defaultValue: number) => {
   const get = () => {
@@ -53,6 +56,7 @@ const useMeasure = () => {
 };
 
 export function PhotographyEditorial() {
+  const navigate = useNavigate();
   const columns = useMedia(
     ['(min-width:1280px)', '(min-width:900px)', '(min-width:600px)', '(min-width:400px)'],
     [4, 4, 3, 2],
@@ -67,8 +71,9 @@ export function PhotographyEditorial() {
   // preload + capture natural aspect so vertical stays vertical
   useEffect(() => {
     let cancelled = false;
+    const preloadItems = previewItems.filter(it => it.id !== 'EXPLORE');
     Promise.all(
-      items.map(
+      preloadItems.map(
         (it) =>
           new Promise<{ id: string; ratio: number }>((resolve) => {
             const img = new Image();
@@ -107,7 +112,7 @@ export function PhotographyEditorial() {
     if (!width) return [];
     const colHeights = new Array(columns).fill(0);
     const columnWidth = width / columns;
-    return items.map((child) => {
+    return previewItems.map((child) => {
       const col = colHeights.indexOf(Math.min(...colHeights));
       const x = columnWidth * col;
       // portrait-preserving height: use real image ratio when available, fallback to height prop
@@ -256,37 +261,61 @@ export function PhotographyEditorial() {
               className="absolute top-0 left-0 p-[6px] will-change-transform"
               style={{ width: item.w, height: item.h }}
             >
-              <div
-                data-masonry-card
-                className="group relative h-full w-full overflow-hidden rounded-xl border border-[rgba(200,155,60,0.12)] bg-[#0F1F3D] shadow-[0_8px_24px_rgba(15,31,61,0.12)] cursor-pointer will-change-transform transition-[border-color,box-shadow] duration-300 hover:border-[rgba(200,155,60,0.28)] hover:shadow-[0_14px_36px_rgba(15,31,61,0.18)]"
-                onClick={() => setSelected(item)}
-                onKeyDown={(e) => e.key === 'Enter' && setSelected(item)}
-                tabIndex={0}
-                role="button"
-                aria-label={`View ${item.title}: ${item.alt}`}
-              >
-                {/* true <img> with object-cover — preserves portrait, allows slight crop but never landscape-forces portrait source */}
-                <img
-                  src={item.img}
-                  alt={item.alt}
-                  loading="lazy"
-                  draggable={false}
-                  className="h-full w-full object-cover object-center"
-                />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/45 opacity-80 group-hover:opacity-100 transition-opacity" />
-                <span className="pointer-events-none absolute left-3 top-2 font-serif text-[clamp(18px,3vw,26px)] leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
-                  {item.id}
-                </span>
-                <span className="pointer-events-none absolute bottom-2 left-3 right-3 font-mono text-[0.58rem] tracking-wide text-white/88 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] line-clamp-1">
-                  {item.alt}
-                </span>
-              </div>
+              {item.id === 'EXPLORE' ? (
+                <button
+                  data-masonry-card
+                  onClick={() => navigate('/photography')}
+                  className="group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-xl border border-[rgba(200,155,60,0.22)] bg-[#0F1F3D] p-5 text-left shadow-[0_8px_24px_rgba(15,31,61,0.12)] hover:border-[#C89B3C]/40 hover:shadow-[0_14px_36px_rgba(15,31,61,0.18)] transition-all will-change-transform"
+                  aria-label="Explore all photographs"
+                >
+                  <div>
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#C89B3C] text-[#0F1F3D] font-bold">◈</span>
+                    <h4 className="mt-3 font-serif text-[1.15rem] font-extrabold leading-tight text-[#FAF7F0]">Explore all frames</h4>
+                    <p className="mt-1 font-mono text-[0.68rem] leading-relaxed text-[#F3E8D0]/70">{items.length} photographs · masonry archive</p>
+                  </div>
+                  <div className="mt-4 flex items-center gap-2">
+                    <div className="flex -space-x-1.5">
+                      <span className="h-7 w-7 rounded-full border-2 border-[#0F1F3D] bg-[#FAF7F0] grid place-items-center overflow-hidden"><img src="/images/photography/A.jpeg" alt="" className="h-full w-full object-cover" /></span>
+                      <span className="h-7 w-7 rounded-full border-2 border-[#0F1F3D] bg-[#FAF7F0] grid place-items-center overflow-hidden"><img src="/images/photography/B.jpg" alt="" className="h-full w-full object-cover" /></span>
+                      <span className="h-7 w-7 rounded-full border-2 border-[#0F1F3D] bg-[#FAF7F0] grid place-items-center overflow-hidden"><img src="/images/photography/C.jpeg" alt="" className="h-full w-full object-cover" /></span>
+                      <span className="h-7 w-7 rounded-full border-2 border-[#0F1F3D] bg-[#C89B3C] grid place-items-center font-mono text-[0.58rem] font-bold text-[#0F1F3D]">+{items.length - 3}</span>
+                    </div>
+                    <span className="ml-auto font-mono text-[0.70rem] font-bold tracking-wide text-[#C89B3C] group-hover:translate-x-1 transition-transform">Open gallery →</span>
+                  </div>
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#C89B3C]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
+              ) : (
+                <div
+                  data-masonry-card
+                  className="group relative h-full w-full overflow-hidden rounded-xl border border-[rgba(200,155,60,0.12)] bg-[#0F1F3D] shadow-[0_8px_24px_rgba(15,31,61,0.12)] cursor-pointer will-change-transform transition-[border-color,box-shadow] duration-300 hover:border-[rgba(200,155,60,0.28)] hover:shadow-[0_14px_36px_rgba(15,31,61,0.18)]"
+                  onClick={() => setSelected(item as any)}
+                  onKeyDown={(e) => e.key === 'Enter' && setSelected(item as any)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`View ${item.title}: ${item.alt}`}
+                >
+                  <img
+                    src={item.img}
+                    alt={item.alt}
+                    loading="lazy"
+                    draggable={false}
+                    className="h-full w-full object-cover object-center"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/15 via-transparent to-black/45 opacity-80 group-hover:opacity-100 transition-opacity" />
+                  <span className="pointer-events-none absolute left-3 top-2 font-serif text-[clamp(18px,3vw,26px)] leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
+                    {item.id}
+                  </span>
+                  <span className="pointer-events-none absolute bottom-2 left-3 right-3 font-mono text-[0.58rem] tracking-wide text-white/88 drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)] line-clamp-1">
+                    {item.alt}
+                  </span>
+                </div>
+              )}
             </div>
           ))}
         </div>
 
         <p className="mt-4 text-center font-mono text-[0.68rem] tracking-wide text-[#756F65]/80">
-          Scroll slowly — frames rise as they enter view · {items.length} frames A–O
+          14 frames preview · Explore opens full gallery ({items.length} frames A–O)
         </p>
 
         <div className="relative mt-10 flex flex-col items-center text-center">

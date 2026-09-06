@@ -17,6 +17,7 @@ import { HackathonsEditorial } from '@/components/editorial/HackathonsEditorial'
 import { PhotographyEditorial } from '@/components/editorial/PhotographyEditorial';
 import { ContactEditorial } from '@/components/editorial/ContactEditorial';
 import Archive from '@/pages/Archive';
+import Photography from '@/pages/Photography';
 import { useReveal } from '@/components/editorial/Reveal';
 
 function SectionFallback() {
@@ -67,6 +68,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<EditorialShell />} />
               <Route path="/archive" element={<Archive />} />
+              <Route path="/photography" element={<Photography />} />
             </Routes>
           </BrowserRouter>
         </div>
