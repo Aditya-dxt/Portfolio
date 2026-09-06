@@ -95,7 +95,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const formData: any = await formRes.json().catch(() => ({}));
     if (!formRes.ok) {
       console.error('FormSubmit error', formData);
-      return res.status(502).json({ ok: false, error: (formData as any)?.message || 'Email service temporarily unavailable' });
+      const raw = (formData as any)?.message || '';
+      // Make the activation step explicit
+      const hint = raw ? raw + ' — check adityadxt1910@gmail.com inbox for FormSubmit confirmation and click Activate. Or set RESEND_API_KEY in Vercel for instant delivery.' : 'Email service temporarily unavailable — check adityadxt1910@gmail.com inbox for FormSubmit confirmation email, or set RESEND_API_KEY in Vercel env.';
+      return res.status(502).json({ ok: false, error: hint });
     }
     return res.status(200).json({ ok: true, via: 'formsubmit' });
   } catch (err: any) {

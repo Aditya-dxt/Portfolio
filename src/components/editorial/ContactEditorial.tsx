@@ -74,14 +74,27 @@ export function ContactEditorial() {
           }),
         });
         const d2: any = await r2.json().catch(() => ({}));
-        if (!r2.ok) throw new Error(d2?.message || 'Failed to send — please email adityadxt1910@gmail.com directly');
+        if (!r2.ok) {
+          const m = d2?.message || '';
+          if (m.includes('Confirmation') || m.includes('activate') || m.toLowerCase().includes('email')) {
+            throw new Error('FormSubmit needs one-time activation — check adityadxt1910@gmail.com inbox for "Confirm your FormSubmit" email and click it, then retry. Or email directly.');
+          }
+          throw new Error(m || 'Failed to send — please email adityadxt1910@gmail.com directly');
+        }
         setSent(true);
         (e.target as HTMLFormElement).reset();
         setTimeout(() => setSent(false), 6000);
         return;
       }
 
-      if (!res.ok || !data?.ok) throw new Error(data?.error || 'Failed to send — please try again');
+      if (!res.ok || !data?.ok) {
+        const msg = data?.error || '';
+        // FormSubmit not yet activated -> common 502 "Email service temporarily unavailable"
+        if (msg.includes('temporarily unavailable') || msg.includes('FormSubmit') || res.status === 502) {
+          throw new Error('Server email not yet activated — your message is saved locally. Please email adityadxt1910@gmail.com directly or click Email directly below. (To auto-enable: check adityadxt1910@gmail.com inbox for FormSubmit activation email and click Confirm)');
+        }
+        throw new Error(msg || 'Failed to send — please try again');
+      }
       setSent(true);
       (e.target as HTMLFormElement).reset();
       setTimeout(() => setSent(false), 6000);
