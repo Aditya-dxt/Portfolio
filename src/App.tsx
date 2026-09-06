@@ -1,4 +1,5 @@
 import { Suspense, useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { LenisProvider } from '@/context/LenisContext';
 import { useCursor } from '@/hooks/useCursor';
 import { CustomCursor } from '@/components/CustomCursor';
@@ -15,6 +16,7 @@ import { CertificationsEditorial } from '@/components/editorial/CertificationsEd
 import { HackathonsEditorial } from '@/components/editorial/HackathonsEditorial';
 import { PhotographyEditorial } from '@/components/editorial/PhotographyEditorial';
 import { ContactEditorial } from '@/components/editorial/ContactEditorial';
+import Archive from '@/pages/Archive';
 import { useReveal } from '@/components/editorial/Reveal';
 
 function SectionFallback() {
@@ -60,10 +62,15 @@ export default function App() {
       <GrainOverlay />
       <ScrollProgress />
       <LenisProvider enabled onReady={() => setVisible(true)}>
-          <div className={visible ? 'opacity-100 transition-opacity duration-300' : 'pointer-events-none opacity-0'} aria-hidden={!visible}>
-            <EditorialShell />
-          </div>
-        </LenisProvider>
+        <div className={visible ? 'opacity-100 transition-opacity duration-300' : 'pointer-events-none opacity-0'} aria-hidden={!visible}>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<EditorialShell />} />
+              <Route path="/archive" element={<Archive />} />
+            </Routes>
+          </BrowserRouter>
+        </div>
+      </LenisProvider>
     </>
   );
 }

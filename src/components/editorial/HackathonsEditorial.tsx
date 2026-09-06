@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { gsap, isReducedMotion } from '@/lib/gsap';
+import { useNavigate } from 'react-router-dom';
 import { portfolio } from '@/data/portfolio';
 import { useAppReady } from '@/context/LenisContext';
 import { HiOutlineMapPin, HiOutlineCalendarDays } from 'react-icons/hi2';
@@ -7,6 +8,7 @@ import { HiOutlineMapPin, HiOutlineCalendarDays } from 'react-icons/hi2';
 export function HackathonsEditorial() {
   const ref = useRef<HTMLElement>(null);
   const ready = useAppReady();
+  const navigate = useNavigate();
   useEffect(() => {
     const root = ref.current;
     if (!root || isReducedMotion()) return;
@@ -35,14 +37,14 @@ export function HackathonsEditorial() {
       <div className="max-w-[1400px] mx-auto px-[4vw] py-[90px]">
         <div className="flex flex-wrap justify-between items-end gap-4 border-b border-[rgba(200,155,60,0.14)] pb-5 mb-10 reveal">
           <div>
-            <span className="font-mono text-[0.78rem] tracking-[0.12em] text-[#C89B3C] block mb-1.5">06 / HACKATHONS</span>
+            <span className="font-mono text-[0.78rem] tracking-[0.12em] text-[#C89B3C] block mb-1.5">07 / HACKATHONS</span>
             <h2 className="font-serif text-[clamp(2rem,4vw,3.2rem)] font-extrabold tracking-[0.02em]">HACKATHONS LED</h2>
             <p className="text-[0.92rem] text-[var(--text-light-muted)] mt-1">Four national stages — team lead, ship fast, learn faster.</p>
           </div>
-          <span className="font-mono text-[0.72rem] tracking-[0.08em] text-[var(--text-light-muted)] border border-[rgba(200,155,60,0.14)] px-3.5 py-1.5 rounded-full hidden md:inline-flex">4 × NATIONAL · TEAM LEADER</span>
+          <button onClick={() => navigate('/archive#hackathons')} className="font-mono text-[0.72rem] font-bold tracking-wide bg-[#C89B3C] text-[#0F1F3D] px-4 py-2 rounded-full hover:bg-[#D4A84A] transition-colors">View all 4 →</button>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-2 auto-rows-fr">
           {portfolio.hackathons.map((h, i) => (
             <article
               key={h.name}
@@ -91,6 +93,20 @@ export function HackathonsEditorial() {
               </div>
             </article>
           ))}
+          <button type="button" onClick={() => navigate('/archive#hackathons')} className="hack-card group relative overflow-hidden rounded-[18px] border border-[rgba(200,155,60,0.22)] bg-[#0F1F3D] text-left hover:bg-[#162E4D]/80 transition-colors flex flex-col p-7 justify-between min-h-[340px]">
+            <div>
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#C89B3C] text-[#0F1F3D] font-bold">◈</span>
+              <h4 className="mt-3 font-serif text-[1.25rem] font-extrabold leading-tight text-[#FAF7F0]">Explore all hackathons</h4>
+              <p className="mt-1 font-mono text-[0.72rem] leading-relaxed text-[#F3E8D0]/70">4 national stages · India Innovates, Green Bharat, AVEVA, Technex — open full archive</p>
+            </div>
+            <div className="mt-6">
+              <div className="flex -space-x-2">
+                {portfolio.hackathons.slice(0,3).map((h:any)=>(<span key={h.name} className="h-9 w-9 rounded-full border-2 border-[#0F1F3D] overflow-hidden bg-[#FAF7F0] grid place-items-center"><img src={h.image} alt="" className="h-full w-full object-cover" /></span>))}
+                <span className="h-9 w-9 rounded-full border-2 border-[#0F1F3D] bg-[#C89B3C] grid place-items-center font-mono text-[0.62rem] font-bold text-[#0F1F3D]">+1</span>
+              </div>
+              <span className="mt-3 inline-flex items-center gap-2 font-mono text-[0.72rem] font-bold tracking-wide text-[#C89B3C]">Open archive <span className="transition-transform group-hover:translate-x-1">→</span></span>
+            </div>
+          </button>
         </div>
       </div>
     </section>

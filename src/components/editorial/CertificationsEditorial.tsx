@@ -1,19 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap, isReducedMotion } from '@/lib/gsap';
 import { portfolio } from '@/data/portfolio';
+import { useNavigate } from 'react-router-dom';
 import { useAppReady } from '@/context/LenisContext';
 
 const CERT_MAIN = 5;
 
-function scrollToId(id: string) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
 export function CertificationsEditorial() {
   const ref = useRef<HTMLElement>(null);
   const ready = useAppReady();
-  const [showCert, setShowCert] = useState(false);
+  const navigate = useNavigate();
   const certs = portfolio.certifications as any[];
 
   useEffect(() => {
@@ -49,10 +45,10 @@ export function CertificationsEditorial() {
             <p className="font-mono text-[0.72rem] tracking-wide text-[#756F65] mt-2">29 credentials — tap any to preview</p>
           </div>
           <button
-            onClick={() => { setShowCert(v => !v); if (!showCert) setTimeout(() => scrollToId('certifications-archive'), 120); }}
+            onClick={() => navigate('/archive#certifications')}
             className="font-mono text-[0.72rem] font-bold tracking-wide bg-[#0F1F3D] text-[#FAF7F0] px-4 py-2 rounded-full hover:bg-[#162E4D] transition-colors"
           >
-            {showCert ? 'Hide vault ↑' : 'View all 29 →'}
+            View all 29 →
           </button>
         </div>
 
@@ -77,7 +73,7 @@ export function CertificationsEditorial() {
           ))}
           <button
             type="button"
-            onClick={() => { setShowCert(true); setTimeout(() => scrollToId('certifications-archive'), 120); }}
+            onClick={() => navigate('/archive#certifications')}
             className="cert-card group relative overflow-hidden rounded-[18px] border border-[#C89B3C]/20 bg-[#0F1F3D] text-left hover:bg-[#162E4D] transition-colors flex flex-col h-full min-h-0 self-stretch"
           >
             <div className="p-6 pb-3">
@@ -97,28 +93,6 @@ export function CertificationsEditorial() {
           </button>
         </div>
 
-        <div id="certifications-archive" className={`${showCert ? 'block' : 'hidden'} mt-6 rounded-[18px] border border-[#C89B3C]/15 bg-[#0F1F3D] p-5 sm:p-6`}>
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-            <h4 className="font-serif text-[1.05rem] font-extrabold text-[#FAF7F0]">Complete vault — {certs.length} certificates</h4>
-            <div className="flex gap-2">
-              <button onClick={() => setShowCert(false)} className="font-mono text-[0.70rem] text-[#FAF7F0] border border-[rgba(200,155,60,0.18)] bg-white/5 px-3 py-1.5 rounded-full hover:bg-white/10">Close ✕</button>
-            </div>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr items-stretch">
-            {certs.map((c: any) => (
-              <a key={c.name + c.issuer} href={c.image || '#'} target={c.image ? '_blank' : undefined} rel="noopener" className="group overflow-hidden rounded-[16px] border border-[rgba(200,155,60,0.14)] bg-[#162E4D] hover:border-[#C89B3C]/30 transition-colors flex flex-col">
-                <div className="aspect-[16/10] overflow-hidden bg-[#FAF7F0]">
-                  {c.image ? <img src={c.image} alt={c.name} loading="lazy" className="h-full w-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-500" /> : <div className="grid h-full place-items-center font-serif text-xl font-black text-[#0F1F3D]/10">{c.name.slice(0, 2)}</div>}
-                </div>
-                <div className="p-4">
-                  <h5 className="font-sans text-[0.88rem] font-bold leading-tight text-[#FAF7F0]">{c.name}</h5>
-                  <p className="mt-1 font-mono text-[0.68rem] text-[#F3E8D0]/70">{c.issuer} · {c.year || ''}</p>
-                </div>
-              </a>
-            ))}
-          </div>
-          <p className="mt-4 text-center font-mono text-[0.68rem] text-[#F3E8D0]/50">Click any card to open full certificate image · /public/images/certifications</p>
-        </div>
       </div>
     </section>
   );

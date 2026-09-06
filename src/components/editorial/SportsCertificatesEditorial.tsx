@@ -1,18 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap, isReducedMotion } from '@/lib/gsap';
 import { portfolio } from '@/data/portfolio';
+import { useNavigate } from 'react-router-dom';
 import { useAppReady } from '@/context/LenisContext';
-
-function scrollToId(id: string) {
-  const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
 
 export function SportsCertificatesEditorial() {
   const ref = useRef<HTMLElement>(null);
   const ready = useAppReady();
+  const navigate = useNavigate();
   const [active, setActive] = useState<string | null>(null);
-  const [showAll, setShowAll] = useState(false);
 
   const certs = (portfolio as any).sportsCertificates as { name: string; image: string; label: string }[];
   const achievements = (portfolio as any).sportsAchievements as any[];
@@ -72,10 +68,10 @@ export function SportsCertificatesEditorial() {
             <p className="mt-2 max-w-[52rem] font-mono text-[0.72rem] tracking-wide text-[#F3E8D0]/70">Nine framed proofs — courts, podiums & captaincy. Tap any frame to view full size. Separate from tech vault.</p>
           </div>
           <button
-            onClick={() => { setShowAll(v => !v); if (!showAll) setTimeout(() => scrollToId('sports-archive'), 120); }}
+            onClick={() => navigate('/archive#sports')}
             className="hidden sm:inline-flex font-mono text-[0.72rem] font-bold tracking-wide bg-[#FAF7F0] text-[#7A263A] px-4 py-2 rounded-full hover:bg-white transition-colors"
           >
-            {showAll ? 'Hide all ↑' : 'View all 9 →'}
+            View all 9 →
           </button>
         </div>
 
@@ -127,7 +123,7 @@ export function SportsCertificatesEditorial() {
           {/* 6th — explore */}
           <button
             type="button"
-            onClick={() => { setShowAll(true); setTimeout(() => scrollToId('sports-archive'), 120); }}
+            onClick={() => navigate('/archive#sports')}
             className="sports-frame group relative overflow-hidden rounded-[18px] border border-[rgba(200,155,60,0.22)] bg-[#0F1F3D] text-left hover:bg-[#162E4D] transition-colors flex flex-col h-full min-h-0 self-stretch"
           >
             <div className="p-6 pb-3">
@@ -147,28 +143,6 @@ export function SportsCertificatesEditorial() {
               <span className="mt-3 inline-flex items-center gap-2 font-mono text-[0.72rem] font-bold tracking-wide text-[#C89B3C]">Open vault <span className="transition-transform group-hover:translate-x-1">→</span></span>
             </div>
           </button>
-        </div>
-
-        {/* archive — all 9 */}
-        <div id="sports-archive" className={`${showAll ? 'block' : 'hidden'} mt-6 rounded-[18px] border border-[rgba(200,155,60,0.18)] bg-[#FAF7F0] p-5 sm:p-6`}>
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-            <h4 className="font-serif text-[1.05rem] font-extrabold text-[#0F1F3D]">Full stadium — {certs.length} certificates</h4>
-            <button onClick={() => setShowAll(false)} className="font-mono text-[0.70rem] text-[#0F1F3D] border border-[#C89B3C]/15 bg-white px-3 py-1.5 rounded-full hover:border-[#C89B3C]/30">Close ✕</button>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {certs.map(c => (
-              <button key={c.image + '-all'} onClick={() => setActive(c.image)} className="group overflow-hidden rounded-[16px] border border-[rgba(15,31,61,0.08)] bg-white hover:border-[#C89B3C]/30 transition-colors flex flex-col text-left">
-                <div className="aspect-[4/3] overflow-hidden bg-white p-2">
-                  <img src={c.image} alt={c.name} loading="lazy" className="h-full w-full object-cover rounded-[8px] group-hover:scale-[1.02] transition-transform duration-500" />
-                </div>
-                <div className="px-4 pb-3">
-                  <h5 className="font-mono text-[0.72rem] font-bold tracking-wide text-[#0F1F3D]">{c.name.replace('Sports Certificate — ', 'Certificate ')}</h5>
-                  <p className="font-mono text-[0.64rem] text-[#756F65]">Tap to enlarge · {c.label}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-          <p className="mt-4 text-center font-mono text-[0.66rem] text-[#756F65]">Click any frame for full lightbox · /public/images/sports</p>
         </div>
 
         <p className="mt-4 text-center font-mono text-[0.66rem] tracking-wide text-[#F3E8D0]/60 sm:hidden">Tap Explore to see all 9 · frames open full size</p>
