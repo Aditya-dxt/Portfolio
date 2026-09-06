@@ -22,8 +22,13 @@ const items: PhotoItem[] = [
   { id: 'N', img: '/images/photography/N.jpeg', height: 600, alt: 'Light trails', title: 'N' },
   { id: 'O', img: '/images/photography/O.jpeg', height: 700, alt: 'Quiet night', title: 'O' },
 ];
-// Preview: L replaced by Explore box same exact masonry slot (640h, same columns calculation)
-const previewItems: PhotoItem[] = items.map(it => it.id === 'L' ? { id: 'EXPLORE', img: '', height: 640, alt: 'Explore all photographs', title: 'EXPLORE' } : it);
+// Preview: hide L,M,N,O from masonry preview — they live only in /photography full gallery
+// EXPLORE occupies exact slot where L was (640h) so layout stays balanced; future items beyond K will also go to gallery only unless added to previewIds
+const PREVIEW_IDS = new Set(['A','B','C','D','E','F','G','H','I','J','K']); // 11 preview frames
+const previewBase: PhotoItem[] = items.filter(it => PREVIEW_IDS.has(it.id));
+const EXPLORE: PhotoItem = { id: 'EXPLORE', img: '', height: 640, alt: 'Explore all photographs', title: 'EXPLORE' };
+// Insert EXPLORE where L was — after K (index 10) so masonry keeps same balance
+const previewItems: PhotoItem[] = [...previewBase.slice(0, 11), EXPLORE];
 
 const useMedia = (queries: string[], values: number[], defaultValue: number) => {
   const get = () => {
@@ -271,14 +276,14 @@ export function PhotographyEditorial() {
                   <div>
                     <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#C89B3C] text-[#0F1F3D] font-bold">◈</span>
                     <h4 className="mt-3 font-serif text-[1.15rem] font-extrabold leading-tight text-[#FAF7F0]">Explore all frames</h4>
-                    <p className="mt-1 font-mono text-[0.68rem] leading-relaxed text-[#F3E8D0]/70">{items.length} photographs · masonry archive</p>
+                    <p className="mt-1 font-mono text-[0.68rem] leading-relaxed text-[#F3E8D0]/70">11 preview + gallery (15 total) · masonry archive</p>
                   </div>
                   <div className="mt-4 flex items-center gap-2">
                     <div className="flex -space-x-1.5">
                       <span className="h-7 w-7 rounded-full border-2 border-[#0F1F3D] bg-[#FAF7F0] grid place-items-center overflow-hidden"><img src="/images/photography/A.jpeg" alt="" className="h-full w-full object-cover" /></span>
                       <span className="h-7 w-7 rounded-full border-2 border-[#0F1F3D] bg-[#FAF7F0] grid place-items-center overflow-hidden"><img src="/images/photography/B.jpg" alt="" className="h-full w-full object-cover" /></span>
                       <span className="h-7 w-7 rounded-full border-2 border-[#0F1F3D] bg-[#FAF7F0] grid place-items-center overflow-hidden"><img src="/images/photography/C.jpeg" alt="" className="h-full w-full object-cover" /></span>
-                      <span className="h-7 w-7 rounded-full border-2 border-[#0F1F3D] bg-[#C89B3C] grid place-items-center font-mono text-[0.58rem] font-bold text-[#0F1F3D]">+{items.length - 3}</span>
+                      <span className="h-7 w-7 rounded-full border-2 border-[#0F1F3D] bg-[#C89B3C] grid place-items-center font-mono text-[0.58rem] font-bold text-[#0F1F3D]">+{items.length - 11}</span>
                     </div>
                     <span className="ml-auto font-mono text-[0.70rem] font-bold tracking-wide text-[#C89B3C] group-hover:translate-x-1 transition-transform">Open gallery →</span>
                   </div>
@@ -315,7 +320,7 @@ export function PhotographyEditorial() {
         </div>
 
         <p className="mt-4 text-center font-mono text-[0.68rem] tracking-wide text-[#756F65]/80">
-          14 frames preview · Explore opens full gallery ({items.length} frames A–O)
+          11 frames preview + Explore · full gallery has {items.length} frames A–O (L,M,N,O gallery-only)
         </p>
 
         <div className="relative mt-10 flex flex-col items-center text-center">
