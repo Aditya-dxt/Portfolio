@@ -147,7 +147,7 @@ export const portfolio = {
   achievements: [
     'National Finalist — India Innovates 2026 (CivicSentinel AI) at Bharat Mandapam',
     '300+ DSA problems solved on LeetCode; 4★ Java & 3★ Problem Solving on HackerRank',
-    'State-level Basketball Player — represented Uttar Pradesh',
+    'State-level Basketball Player',
     'E-Summit IIT Kanpur 2K24 & 2K25; Bitathon & TATA Crucible Campus Quiz 2025',
     '3-Day AI Bootcamp · AWS Summit Champion (AWS Summit India 2026)',
     'Shipped 7+ production apps — MERN + AI (Stripe, RAG, Socket.IO) on Vercel/Render',
@@ -159,9 +159,9 @@ export const portfolio = {
   sportsAchievements: [
     {
       title: 'State-level Basketball Player',
-      org: 'Uttar Pradesh State Team',
+      org: 'State-Level Championship',
       period: '2023 — 24',
-      desc: 'Represented Uttar Pradesh at state-level championship — selected through district & zonal trials.',
+      desc: 'State-level championship — selected through district & zonal trials.',
       badge: 'STATE',
     },
     {
