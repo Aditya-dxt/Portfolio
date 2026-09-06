@@ -81,7 +81,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // First submission needs you to click confirmation email from FormSubmit — after that all deliver instantly.
     const formRes = await fetch('https://formsubmit.co/ajax/adityadxt1910@gmail.com', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Origin: 'https://aditya-dixit.vercel.app',
+        Referer: 'https://aditya-dixit.vercel.app/',
+      },
       body: JSON.stringify({
         name,
         email,
@@ -93,10 +98,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }),
     });
     const formData: any = await formRes.json().catch(() => ({}));
-    if (!formRes.ok) {
-      console.error('FormSubmit error', formData);
+    // FormSubmit returns 200 with {success:"true"/"false"} — must check success, not just HTTP
+    const success = formData?.success === true || formData?.success === 'true';
+    if (!formRes.ok || !success) {
+      console.error('FormSubmit error', { status: formRes.status, formData });
       const raw = (formData as any)?.message || '';
-      // Make the activation step explicit
+      // Common false-positive: server-side fetch without Origin was flagged as file://
+      if (raw.includes('web server')) {
+        // Fallback: treat as success if FormSubmit is activated — activation already done, so deliver via client path hint
+        // Return 200 to let client fallback handle it? Instead return explicit retry hint
+        return res.status(502).json({ ok: false, error: 'FormSubmit server check pending — please retry from the browser (client will auto-retry). If persists, set RESEND_API_KEY.' });
+      }
       const hint = raw ? raw + ' — check adityadxt1910@gmail.com inbox for FormSubmit confirmation and click Activate. Or set RESEND_API_KEY in Vercel for instant delivery.' : 'Email service temporarily unavailable — check adityadxt1910@gmail.com inbox for FormSubmit confirmation email, or set RESEND_API_KEY in Vercel env.';
       return res.status(502).json({ ok: false, error: hint });
     }

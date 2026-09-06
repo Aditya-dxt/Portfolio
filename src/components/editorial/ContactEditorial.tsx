@@ -58,39 +58,51 @@ export function ContactEditorial() {
         res = null;
       }
 
-      // fallback for local dev where /api/contact 404s — post directly to FormSubmit ajax
-      if (!res || res.status === 404) {
-        const r2 = await fetch('https://formsubmit.co/ajax/adityadxt1910@gmail.com', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            name,
-            email,
-            subject: `${subject} — from ${name}`,
-            message: `From: ${name} <${email}>\nSubject: ${subject}\n\n${message}\n\n— sent via aditya-dixit.vercel.app`,
-            _subject: `${subject} — from ${name} (portfolio)`,
-            _template: 'table',
-            _captcha: 'false',
-          }),
-        });
-        const d2: any = await r2.json().catch(() => ({}));
-        if (!r2.ok) {
-          const m = d2?.message || '';
-          if (m.includes('Confirmation') || m.includes('activate') || m.toLowerCase().includes('email')) {
-            throw new Error('FormSubmit needs one-time activation — check adityadxt1910@gmail.com inbox for "Confirm your FormSubmit" email and click it, then retry. Or email directly.');
+      // fallback: if /api/contact fails (404 in dev, or 502 when FormSubmit server check pending) — post directly from browser (has Origin)
+      if (!res || !res.ok || !data?.ok) {
+        const isApiFailure = !res || res.status === 404 || res.status === 502 || !data?.ok;
+        if (isApiFailure) {
+          try {
+            const r2 = await fetch('https://formsubmit.co/ajax/adityadxt1910@gmail.com', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+              body: JSON.stringify({
+                name,
+                email,
+                subject: `${subject} — from ${name}`,
+                message: `From: ${name} <${email}>\nSubject: ${subject}\n\n${message}\n\n— sent via aditya-dixit.vercel.app`,
+                _subject: `${subject} — from ${name} (portfolio)`,
+                _template: 'table',
+                _captcha: 'false',
+              }),
+            });
+            const d2: any = await r2.json().catch(() => ({}));
+            const ok2 = d2?.success === true || d2?.success === 'true';
+            if (!r2.ok || !ok2) {
+              const m = d2?.message || data?.error || '';
+              if (m.includes('Confirmation') || m.includes('activate') || m.toLowerCase().includes('email')) {
+                throw new Error('FormSubmit needs one-time activation — check adityadxt1910@gmail.com inbox for "Confirm your FormSubmit" email and click it, then retry. Or email directly.');
+              }
+              // if browser fallback also fails, fall through to throw below
+              if (!ok2 && r2.ok) throw new Error(m || 'FormSubmit rejected — email adityadxt1910@gmail.com directly');
+              throw new Error(m || 'Failed to send — please email adityadxt1910@gmail.com directly');
+            }
+            setSent(true);
+            (e.target as HTMLFormElement).reset();
+            setTimeout(() => setSent(false), 6000);
+            return;
+          } catch (fallbackErr: any) {
+            // if fallback threw and original api had a more specific error, prefer original
+            if (data?.error && !fallbackErr?.message?.includes('FormSubmit')) throw new Error(data.error);
+            throw fallbackErr;
           }
-          throw new Error(m || 'Failed to send — please email adityadxt1910@gmail.com directly');
         }
-        setSent(true);
-        (e.target as HTMLFormElement).reset();
-        setTimeout(() => setSent(false), 6000);
-        return;
       }
 
-      if (!res.ok || !data?.ok) {
+      if (!res || !res.ok || !data?.ok) {
         const msg = data?.error || '';
         // FormSubmit not yet activated -> common 502 "Email service temporarily unavailable"
-        if (msg.includes('temporarily unavailable') || msg.includes('FormSubmit') || res.status === 502) {
+        if (msg.includes('temporarily unavailable') || msg.includes('FormSubmit') || res?.status === 502) {
           throw new Error('Server email not yet activated — your message is saved locally. Please email adityadxt1910@gmail.com directly or click Email directly below. (To auto-enable: check adityadxt1910@gmail.com inbox for FormSubmit activation email and click Confirm)');
         }
         throw new Error(msg || 'Failed to send — please try again');
