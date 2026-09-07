@@ -39,10 +39,10 @@ export default function Archive() {
           <div>
             <Link to="/" className="inline-flex items-center gap-2 rounded-full border border-[#C89B3C]/20 bg-white px-3.5 py-1.5 font-mono text-[0.70rem] font-bold tracking-wide text-[#0F1F3D] hover:border-[#C89B3C]/40 transition-colors">← Back to portfolio</Link>
             <h1 className="mt-4 font-serif text-[clamp(2rem,4.5vw,3.6rem)] font-extrabold leading-none tracking-tight">ARCHIVE <span className="italic font-normal text-[#7A263A]">— Vault</span></h1>
-            <p className="mt-2 max-w-[58rem] font-mono text-[0.72rem] tracking-wide text-[#756F65]">One page for everything: Sports (9) + Certifications (29) + Hackathons (4) + Achievements + Photography (15). Use Explore on the home page to land here — or filter below.</p>
+            <p className="mt-2 max-w-[58rem] font-mono text-[0.72rem] tracking-wide text-[#756F65]">One page for everything: Sports (9) + Certifications (29) + Hackathons (6) + Achievements + Photography (15). Use Explore on the home page to land here — or filter below.</p>
           </div>
           <div className="flex flex-wrap gap-2 self-end">
-            <span className="hidden sm:inline-flex rounded-full bg-[#0F1F3D] px-3 py-1.5 font-mono text-[0.66rem] tracking-wide text-[#FAF7F0]">9 SPORTS · 29 CERTS · 4 HACKS · 15 PHOTOS</span>
+            <span className="hidden sm:inline-flex rounded-full bg-[#0F1F3D] px-3 py-1.5 font-mono text-[0.66rem] tracking-wide text-[#FAF7F0]">9 SPORTS · 29 CERTS · 6 HACKS · 15 PHOTOS</span>
           </div>
         </div>
 
@@ -172,9 +172,9 @@ export default function Archive() {
                 <div>
                   <span className="font-mono text-[0.72rem] font-bold tracking-[0.14em] text-[#C89B3C]">04 / HACKATHONS LED</span>
                   <h2 className="font-serif text-[1.7rem] font-extrabold leading-none">HACKATHONS</h2>
-                  <p className="mt-1 font-mono text-[0.68rem] text-[#F3E8D0]/70">Four national stages — team lead, ship fast, learn faster.</p>
+                  <p className="mt-1 font-mono text-[0.68rem] text-[#F3E8D0]/70">Six national stages — team lead, ship fast, learn faster.</p>
                 </div>
-                <span className="rounded-full border border-white/12 bg-white/5 px-3 py-1.5 font-mono text-[0.66rem] tracking-wide text-[#FAF7F0]/80">4 × NATIONAL · LEADER</span>
+                <span className="rounded-full border border-white/12 bg-white/5 px-3 py-1.5 font-mono text-[0.66rem] tracking-wide text-[#FAF7F0]/80">6 × NATIONAL · LEADER</span>
               </div>
               <div className="mt-5 grid gap-6 lg:grid-cols-2">
                 {hacks.map((h: any, i: number) => (
