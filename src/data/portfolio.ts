@@ -273,12 +273,12 @@ export const portfolio = {
   projectsSecondary: [
     {
       id: '04',
-      title: 'Interview AI',
-      subtitle: 'Mock interview platform — Dual AI',
-      desc: 'Generates questions via OpenAI + Gemini, evaluates answers and streams real-time feedback.',
-      tags: ['React', 'OpenAI', 'Gemini'],
-      live: 'https://interview-ai-eta-one.vercel.app',
-      github: 'https://github.com/Aditya-dxt/interview-ai',
+      title: 'CampusIQ',
+      subtitle: 'Campus Management Platform',
+      desc: 'Full-stack campus management platform — React frontend, FastAPI backend, Supabase DB, Phi-3-mini offline LLM, ngrok local tunnel. PSIT Kanpur team lead.',
+      tags: ['React', 'FastAPI', 'Supabase', 'Phi-3-mini'],
+      live: 'https://campus-iq-2-o.vercel.app',
+      github: 'https://github.com/Aditya-dxt/Campus-IQ-2.O',
     },
     {
       id: '05',
