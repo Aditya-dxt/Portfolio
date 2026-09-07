@@ -45,7 +45,7 @@ export function HackathonsEditorial() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2 auto-rows-fr">
-          {portfolio.hackathons.map((h, i) => (
+          {portfolio.hackathons.slice(0,5).map((h, i) => (
             <article
               key={h.name}
               className="hack-card group bg-[#162E4D]/70 backdrop-blur border border-[rgba(200,155,60,0.14)] rounded-[18px] overflow-hidden flex flex-col md:flex-row hover:border-[#C89B3C] hover:shadow-[0_16px_40px_rgba(0,0,0,0.45)] transition-all duration-300 will-change-transform min-h-[340px]"
@@ -97,7 +97,7 @@ export function HackathonsEditorial() {
             <div>
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#C89B3C] text-[#0F1F3D] font-bold">◈</span>
               <h4 className="mt-3 font-serif text-[1.25rem] font-extrabold leading-tight text-[#FAF7F0]">Explore all hackathons</h4>
-              <p className="mt-1 font-mono text-[0.72rem] leading-relaxed text-[#F3E8D0]/70">6 national stages · India Innovates, Green Bharat, AVEVA, Technex, FAR AWAY, iQOO — open full archive</p>
+              <p className="mt-1 font-mono text-[0.72rem] leading-relaxed text-[#F3E8D0]/70">India Innovates, FAR AWAY, iQOO, Green Bharat, AVEVA & more — open full archive</p>
             </div>
             <div className="mt-6">
               <div className="flex -space-x-2">
