@@ -33,7 +33,6 @@ export function ContactEditorial() {
     const email = String(fd.get('email') || '').trim();
     const subject = String(fd.get('subject') || 'Portfolio inquiry').trim();
     const message = String(fd.get('message') || '').trim();
-    const gotcha = String(fd.get('_gotcha') || '').trim();
     if (!name || !email || !message) {
       setError('Please fill name, email and message.');
       return;
@@ -43,43 +42,38 @@ export function ContactEditorial() {
       return;
     }
     setSending(true);
+    // Direct browser POST to FormSubmit (activated, proven working with Origin+Referer).
+    // Skips unreliable server-side hop; server /api/contact kept for future Resend path.
     try {
-      // Direct browser POST to FormSubmit (activated, proven working with Origin+Referer).
-      // Skips unreliable server-side hop; server /api/contact kept for future Resend path.
-      try {
-        const r = await fetch('https://formsubmit.co/ajax/adityadxt1910@gmail.com', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            Referer: 'https://aditya-dixit.vercel.app/',
-          },
-          body: JSON.stringify({
-            name,
-            email,
-            subject: `${subject} — from ${name}`,
-            message: `From: ${name} <${email}>\nSubject: ${subject}\n\n${message}\n\n— sent via aditya-dixit.vercel.app`,
-            _subject: `${subject} — from ${name} (portfolio)`,
-            _template: 'table',
-            _captcha: 'false',
-          }),
-        });
-        const d: any = await r.json().catch(() => ({}));
-        const ok = d?.success === true || d?.success === 'true';
-        if (!r.ok || !ok) {
-          const m = d?.message || '';
-          if (m.includes('Confirmation') || m.includes('activate') || m.toLowerCase().includes('email') || m.includes('web server')) {
-            throw new Error('FormSubmit needs one-time activation — check adityadxt1910@gmail.com inbox for \"Confirm your FormSubmit\" email and click it, then retry. Or email adityadxt1910@gmail.com directly.');
-          }
-          throw new Error(m || 'Failed to send — please email adityadxt1910@gmail.com directly');
+      const r = await fetch('https://formsubmit.co/ajax/adityadxt1910@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Referer: 'https://aditya-dixit.vercel.app/',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          subject: `${subject} — from ${name}`,
+          message: `From: ${name} <${email}>\nSubject: ${subject}\n\n${message}\n\n— sent via aditya-dixit.vercel.app`,
+          _subject: `${subject} — from ${name} (portfolio)`,
+          _template: 'table',
+          _captcha: 'false',
+        }),
+      });
+      const d: any = await r.json().catch(() => ({}));
+      const ok = d?.success === true || d?.success === 'true';
+      if (!r.ok || !ok) {
+        const m = d?.message || '';
+        if (m.includes('Confirmation') || m.includes('activate') || m.toLowerCase().includes('email') || m.includes('web server')) {
+          throw new Error('FormSubmit needs one-time activation — check adityadxt1910@gmail.com inbox for "Confirm your FormSubmit" email and click it, then retry. Or email adityadxt1910@gmail.com directly.');
         }
-        setSent(true);
-        (e.target as HTMLFormElement).reset();
-        setTimeout(() => setSent(false), 6000);
-      } catch (err: any) {
-        setError(err?.message || 'Something went wrong. Email me at adityadxt1910@gmail.com');
+        throw new Error(m || 'Failed to send — please email adityadxt1910@gmail.com directly');
       }
-    } catch (err: any) {
+      setSent(true);
+      (e.target as HTMLFormElement).reset();
+      setTimeout(() => setSent(false), 6000);
     } catch (err: any) {
       setError(err?.message || 'Something went wrong. Email me at adityadxt1910@gmail.com');
     } finally {
@@ -119,14 +113,14 @@ export function ContactEditorial() {
                 <div className="min-w-0">
                   <p className="font-mono text-[0.65rem] tracking-[0.12em] text-[#C89B3C]">FULL-STACK & AI ENGINEER</p>
                   <h3 className="mt-1 font-serif text-[1.35rem] font-extrabold leading-none text-[#FAF7F0]">Aditya Dixit</h3>
-                  <p className="mt-1 font-sans text-[0.82rem] text-[#F3E8D0]/80">B.Tech CSE ’28 · PSIT Kanpur · India</p>
+                  <p className="mt-1 font-sans text-[0.82rem] text-[#F3E8D0]/80">B.Tech CSE '28 · PSIT Kanpur · India</p>
                   <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-[rgba(122,255,122,0.18)] bg-[rgba(122,255,122,0.08)] px-2.5 py-1 font-mono text-[0.66rem] text-[#B6F5B6]">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#7CFF7C] shadow-[0_0_8px_rgba(124,255,124,0.9)]" /> AVAILABLE FOR WORK · 2026
                   </span>
                 </div>
               </div>
               <p className="mt-4 rounded-xl bg-[#0F1F3D] border border-[rgba(200,155,60,0.10)] px-3.5 py-3 font-sans text-[0.82rem] leading-relaxed text-[#F3E8D0]/80">
-                “Shipping production code — not just prototypes.” · Response time ~12 hours · Kanpur (IST)
+                "Shipping production code — not just prototypes." · Response time ~12 hours · Kanpur (IST)
               </p>
             </div>
 
@@ -226,7 +220,7 @@ export function ContactEditorial() {
                 <div className="mt-3 rounded-xl border border-[rgba(255,80,80,0.22)] bg-[rgba(255,80,80,0.10)] px-3.5 py-3 font-sans text-[0.84rem] text-[#FFB4B4]">{error}</div>
               )}
               {sent && (
-                <div className="mt-3 rounded-xl border border-[rgba(122,255,122,0.18)] bg-[rgba(122,255,122,0.08)] px-3.5 py-3 font-sans text-[0.84rem] text-[#B6F5B6]">Sent ✓ — check your inbox for confirmation. I’ll reply within 24h at {portfolio.email}. If you don’t see it, email me directly.</div>
+                <div className="mt-3 rounded-xl border border-[rgba(122,255,122,0.18)] bg-[rgba(122,255,122,0.08)] px-3.5 py-3 font-sans text-[0.84rem] text-[#B6F5B6]">Sent ✓ — check your inbox for confirmation. I'll reply within 24h at {portfolio.email}. If you don't see it, email me directly.</div>
               )}
 
               <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[rgba(200,155,60,0.10)] pt-4">
